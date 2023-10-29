@@ -1,8 +1,9 @@
 import pkg from 'pg'
 const { Pool } = pkg
-
-import config from './config.js'
-const pool = new Pool(config.db_pool_config_dev)
+const pool = new Pool({
+    connectionString: process.env.DB_URI_SERVER,
+    ssl: true
+})
 
 pool.on("connect", function (connection) {
     // evento cuando se crea una nueva conexion
