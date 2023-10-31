@@ -4,5 +4,7 @@ export default ({
     incorrectCodeVerified: (message) => ({ status: 'CODE_INCORRECT', message: message ?? 'Código de verificación incorrecto. Por favor verifique su correo e intentelo de nuevo.' }),
     dataAlreadyExist: (message) => ({ status: 'USER_ALREADY_EXIST', message: message ?? 'The username or  email is already in used' }),
     passwordIncorrect: (message) => ({ status: 'PASSWORD_INCORRECT', message: message ?? 'the password is incorrect' }),
-    internalError: (message) => ({ status: 'INTERNAL_SERVER_ERROR', message: message ?? 'Internal server error' })
+    internalError: (message) => ({ status: 'INTERNAL_SERVER_ERROR', message: message ?? 'Internal server error' }),
+    invalidBodyKeys: (message) => ({ status: 'INVALID_BODY_KEYS', message: message ?? 'La estructura del body es incorrecta, faltan keys o son incorrectas' }),
+    invalidDateFormat: (message) => ({ status: 'INVALID_DATE_FORMAT', message: message ?? 'El formato de fecha es incorrecto' }),
 })
