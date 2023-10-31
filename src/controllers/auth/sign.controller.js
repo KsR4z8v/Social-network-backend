@@ -1,5 +1,5 @@
 
-import services from '../../database/models/index.js'
+import models from '../../database/models/index.js'
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
@@ -7,16 +7,17 @@ dotenv.config()
 import jwt from 'jsonwebtoken'
 
 const { internalError, userNotFound, accountDeactivated, passwordIncorrect } = responseTemplate
+const { userModels } = models
 
-const { usersService } = services
 const sign = async (req, resp) => {
     const { email, password } = req.body;
     try {
-        const user_found = await usersService.getUserByEmail(email)
+        const user_found = await userModels.getUserByEmail(email)
         if (!user_found) {
             return resp.status(404).json(userNotFound())
         }
-        if (user_found.status_account === 0) {
+
+        if (!user_found.state_account) {
             return resp.status(404).json(accountDeactivated())
         }
         if (! await bcrypt.compare(password, user_found.password)) {
