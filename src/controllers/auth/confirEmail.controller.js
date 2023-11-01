@@ -8,7 +8,7 @@ const confirmEmailController = async (req, res) => {
         const { codigo_ingresado } = req.body;
 
 
-        const usuario = await models.userModels.getUserById(id_usuario);
+        const usuario = await models.userModels.getInfoUserById(id_usuario);
         console.log(usuario);
 
         if (!usuario) {

@@ -6,6 +6,6 @@ const user_routes = Router()
 user_routes.post('/sign', middleware_Sign, controllers.sign)
 user_routes.post('/signup', middleware_SignUp, controllers.signUpController);
 user_routes.post('/signup/confirmEmail/:id_usuario', controllers.confirmEmailController);
-
+user_routes.post('/getInfo/:id_user', controllers.getInfoUserController)
 
 export default user_routes
