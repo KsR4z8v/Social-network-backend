@@ -4,7 +4,7 @@ const app = Express()
 import config from "./configs/config.js";
 import app_routes from "./routes/app.routes.js";
 import expressfileupload from 'express-fileupload'
-app.use(cors(config.cors))
+app.use(cors(config.config_cors))
 app.use(expressfileupload())
 app.use(Express.json())
 app.use(Express.urlencoded({ extended: false }))

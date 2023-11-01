@@ -5,7 +5,6 @@ const { userNotFound } = responseTemplate
 const getInfoUserController = async (req, resp) => {
     try {
         const { id_user } = req.params
-
         const resp_db = await models.userModels.getInfoUserById(id_user)
         if (!resp_db) {
             return resp.status(404).json(userNotFound())

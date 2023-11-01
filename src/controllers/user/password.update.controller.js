@@ -1,4 +1,4 @@
-import services from '../../database/models/index.js'
+import models from '../../database/models/index.js'
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 import bcrypt from 'bcrypt'
 const { internalError, userNotFound, passwordIncorrect } = responseTemplate
@@ -8,7 +8,7 @@ const passwordUpdateController = async (req, resp) => {
         const { id_user } = req.params
         const { old_password, new_password } = req.body
 
-        const user_found = await services.usersService.getUserById(id_user)
+        const user_found = await models.userModels.getPasswordUserById(id_user)
 
         if (!user_found) {
             return resp.status(404).json(userNotFound())
@@ -25,7 +25,7 @@ const passwordUpdateController = async (req, resp) => {
             })
         }
 
-        await services.usersService.passwordUpdate(id_user, password_new_hash);
+        await models.userModels.passwordUpdate(id_user, password_new_hash);
 
         resp.sendStatus(200)
 

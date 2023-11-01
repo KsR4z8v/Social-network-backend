@@ -3,7 +3,7 @@ dotenv.config()
 
 export default {
     config_cors: {
-        origin: ["https://nt4mmhp7-3000.use2.devtunnels.ms/", "*"],
+        origin: ["http://localhost:3000", "*"],
         credentials: true,
     },
     IMAGE_KIT_CONFIG: {
