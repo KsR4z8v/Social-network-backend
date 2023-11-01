@@ -1,7 +1,7 @@
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 const { internalError, incorrectCodeVerified, userNotFound } = responseTemplate
 import models from '../../database/models/index.js';
-
+import jwt from 'jsonwebtoken'
 const confirmEmailController = async (req, res) => {
     try {
         const { id_usuario } = req.params;
@@ -19,6 +19,9 @@ const confirmEmailController = async (req, res) => {
         }
 
         await models.userModels.updateStateToActive(id_usuario);
+
+        const token = jwt.sign({ id_user: id_usuario }, process.env.KEY_SECRET_JWT)
+        res.cookie('tkn', token)
 
         res.status(200).json({ message: 'Ok' });
 

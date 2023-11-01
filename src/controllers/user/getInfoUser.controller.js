@@ -1,7 +1,7 @@
 
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 import models from '../../database/models/index.js';
-const { userNotFound } = responseTemplate
+const { internalError, userNotFound } = responseTemplate
 const getInfoUserController = async (req, resp) => {
     try {
         const { id_user } = req.params

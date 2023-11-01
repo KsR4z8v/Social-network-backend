@@ -11,9 +11,7 @@ const { internalError, dataAlreadyExist } = responseTemplate
 
 const signUpController = async (req, resp) => {
     try {
-
         let { username, email, password, fullname, phone_number, date_born } = req.body;
-
         const users_found = await models.userModels.verifyIfExistUser(username, email)
 
         if (users_found) {
@@ -26,8 +24,6 @@ const signUpController = async (req, resp) => {
 
 
         const response_db = await models.userModels.insertUser(username, password_encrypt, email, fullname, phone_number, date_created, date_born, verifyCode)
-        const token = jwt.sign({ id_user: response_db.id_user }, process.env.KEY_SECRET_JWT)
-        resp.cookie('tkn', token)
         sendEmailVerification(fullname.split(' ')[0], verifyCode, email);
         resp.status(200).json({ id_user: response_db, message: 'OK' })
 
