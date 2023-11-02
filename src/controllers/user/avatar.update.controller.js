@@ -8,13 +8,15 @@ const avatarUpdateController = async (req, resp) => {
         const { id_user } = req.body
         const { avatar_file } = req.files
 
-        const url = 'https://example.com/mydatabase'
+        const url = 'https://example.com/prueba1'
 
 
 
 
 
-        const resp_db = await models.userModels.updateAvatarUserByIdUser(id_user, url)
+        const resp_db = await models.userModels.updateDataUserById(id_user, {
+            url_avatar: url
+        })
 
         if (!resp_db) {
             return resp.status(404).json(userNotFound())

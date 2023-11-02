@@ -9,7 +9,7 @@ const passwordUpdateController = async (req, resp) => {
         const { id_user } = req.params
         const { old_password, new_password } = req.body
 
-        const user_found = await models.userModels.getPasswordUserById(id_user)
+        const user_found = await models.userModels.getInfoUserById(id_user)
 
         if (!user_found) {
             return resp.status(404).json(userNotFound())
