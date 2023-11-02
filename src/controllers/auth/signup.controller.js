@@ -5,7 +5,7 @@ import responseTemplate from '../../handlersResponses/responseTemplates.js';
 import encryptPassword from '../../helpers/encrypt.js'
 import models from '../../database/models/index.js'
 import jwt from 'jsonwebtoken'
-import sendEmailVerification from '../../services/sendEmailGoogle.service.js';
+import sendEmail from '../../services/sendEmailGoogle.service.js'
 const { internalError, dataAlreadyExist } = responseTemplate
 
 
@@ -18,13 +18,13 @@ const signUpController = async (req, resp) => {
             return resp.status(409).json(dataAlreadyExist());
         }
 
-        const verifyCode = codeGenerator(10);
+        const verifyCode = codeGenerator(4);
         const date_created = new Date();
         const password_encrypt = await encryptPassword(password)
 
 
         const response_db = await models.userModels.insertUser(username, password_encrypt, email, fullname, phone_number, date_created, date_born, verifyCode)
-        sendEmailVerification(fullname.split(' ')[0], verifyCode, email);
+        sendEmail(email, fullname.split(' ')[0]).verificationEmail(verifyCode)
         resp.status(200).json({ id_user: response_db, message: 'OK' })
 
     } catch (error) {
