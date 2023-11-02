@@ -20,10 +20,19 @@ const sign = async (req, resp) => {
         if (!user_found.state_account) {
             return resp.status(404).json(accountDeactivated())
         }
+
         if (! await bcrypt.compare(password, user_found.password)) {
             return resp.status(411).json(passwordIncorrect())
         }
-
+        if (!user_found.is_verified) {
+            return resp.status(401).json({
+                status: 'PENDING_TO_VERIFIED',
+                data: {
+                    id_user: user_found.id_user,
+                    fullname: user_found.fullname
+                }
+            })
+        }
         const token = jwt.sign({ id_user: user_found.id_user }, process.env.KEY_SECRET_JWT)
         resp.cookie('tkn', token)
 
