@@ -25,11 +25,8 @@ const passwordUpdateController = async (req, resp) => {
                 message: 'son iguales'
             })
         }
-
-        await models.userModels.passwordUpdate(id_user, password_new_hash);
-
+        await models.userModels.updateDataUserById(id_user, { password: password_new_hash });
         resp.sendStatus(200)
-
     } catch (error) {
         console.log(error);
         resp.status(500).json(internalError())
