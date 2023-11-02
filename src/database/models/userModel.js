@@ -14,8 +14,8 @@ export default (pool) => {
             const user_found = await source('SELECT * from users where email = $1', [email])
             return user_found.rows[0]
         },
-        getInfoUserById: async (id_user) => {
-            const user_found = await source('SELECT fullname,username,phone_number,email,url_avatar,date_born,verify_code from users where id_user = $1', [id_user])
+        getInfoUserById: async (id_user,) => {
+            const user_found = await source('SELECT fullname,username,phone_number,email,url_avatar,date_born,verify_code,password from users where id_user = $1', [id_user])
             return user_found.rows[0]
         },
         verifyIfExistUser: async (username, email) => {
@@ -29,28 +29,23 @@ export default (pool) => {
                 [username, email, password, fullname, phone_number, date_created, date_born, verify_code, process.env.AVATAR_DEFAULT])
             return user_found.rows[0].id_user
         },
-        updateStateToActive: async (id_user) => {
-            const user_found = await source('UPDATE users SET state_account = $1 , is_verified = $1  where id_user = $2', [true, id_user])
-            return user_found.rows
-        },
-        updateDataUserById: async (id_user, fullname, username, phone_number, email, date_born) => {
-            const user_found = await source(`UPDATE users SET 
-            fullname=$1 , username=$2 , phone_number=$3 , email=$4, date_born=$5 WHERE id_user=$6 RETURNING id_user`,
-                [fullname, username, phone_number, email, date_born, id_user])
-            return user_found.rows
-        },
-        updateAvatarUserByIdUser: async (id_user, url_avatar) => {
-            const user_found = await source(`UPDATE users SET url_avatar=$1 WHERE id_user=$2 RETURNING id_user`, [url_avatar, id_user])
-            return user_found.rows
-        },
-        passwordUpdate: async (id_user, new_password) => {
-            const user_found = await source(`UPDATE users SET password=$1 WHERE id_user = $2 RETURNING id_user`, [new_password, id_user])
-            return user_found.rows
-        },
-        getPasswordUserById: async (id_user) => {
-            const user_found = await source('SELECT password from users where id_user = $1', [id_user])
-            return user_found.rows[0]
+        updateDataUserById: async (id_user, data) => {
+            const keys_to_update = [];
+            const values_to_update = []
+            let index = 1
+            for (const i in data) {
+                keys_to_update.push(`${i} = ${'$' + index}`)
+                values_to_update.push(data[i])
+                index++
+            }
+            values_to_update.push(id_user)
+            const query = `UPDATE users SET  ${keys_to_update.join(', ')} WHERE id_user =${'$' + values_to_update.length} RETURNING id_user`
+            const resp_db = await source(query, values_to_update)
+
+            console.log('query realizada', query)
+            return resp_db.rows[0]
         }
+
 
     }
     )

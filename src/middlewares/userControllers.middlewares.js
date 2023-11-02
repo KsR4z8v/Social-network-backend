@@ -37,5 +37,22 @@ export const middleware_SignUp = (req, resp, next) => {
 }
 
 
+export const middleware_DataUpdate = (req, resp, next) => {
+    const keys_valids = ['fullname', 'email', 'phone_number', 'date_born', 'username']
+    const keys_invalids = ['password', 'state_account', 'is_verified', 'date_created', 'verify_code', 'url_avatar']
+    const data = req.body
+    const keys = Object.keys(data)
+    for (const key of keys) {
+        if (keys_invalids.includes(key)) {
+            return resp.status(411).json({ message: `No se pùede actualizar el valor ${key}  desde este endpoint` })
+        }
+        if (!keys_valids.includes(key)) {
+            return resp.status(411).json({ message: `la key ${key} es incorrecta` })
+        }
+    }
+    next()
+
+}
+
 
 
