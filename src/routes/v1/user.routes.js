@@ -10,6 +10,6 @@ user_routes.post('/getInfo/:id_user', controllers.getInfoUserController)
 user_routes.patch('/avatar_update', controllers.avatarUpdateController)
 user_routes.patch('/data_update', middleware_DataUpdate, controllers.dataUpdateController)
 user_routes.patch('/password_update/:id_user', controllers.passwordUpdateController)
-
+user_routes.post('/sendEmail_verified', controllers.sendEmailVerified)
 
 export default user_routes
