@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 const oAuth2Client = new google.auth.OAuth2(process.env.ID_CLIENT, process.env.SECRET_CLIENT);
 oAuth2Client.setCredentials({
-    refresh_token: process.env.REFRES_TOKEN_API
+    refresh_token: process.env.REFRESH_TOKEN_API
 });
 const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
 
@@ -33,7 +33,6 @@ const resetPasswordLink = (name) => `
 </html>`
 
 const sendEmail = (email, name) => {
-
     const resorce = async (messageType, asunto) => {
         const message = `From: sender@example.com\r\nTo: ${email}\r\nSubject: ${asunto}\r\nContent-Type: text/html; charset=utf-8\r\n\r\n${messageType}`
         return new Promise((resolve, reject) => {

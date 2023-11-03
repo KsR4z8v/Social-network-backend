@@ -30,6 +30,9 @@ export const middleware_SignUp = (req, resp, next) => {
     if (password.length < 5) {
         return resp.status(400).json(invalidFormatPassword('La contraseña debe tener como mínimo 5 caracteres'));
     }
+    if (!Number.isInteger(parseInt(phone_number)) || phone_number.length !== 10) {
+        return resp.status(400).json(invalidFormatPassword('El numero de telefono no es correcto'));
+    }
     if (! /\d/.test(password)) {
         return resp.status(400).json(invalidFormatPassword('La contraseña debe contener almenos un caracter numérico'));
     }
