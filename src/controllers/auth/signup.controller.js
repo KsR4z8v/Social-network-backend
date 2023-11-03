@@ -4,7 +4,6 @@ import codeGenerator from '../../helpers/code_generator.js';
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 import encryptPassword from '../../helpers/encrypt.js'
 import models from '../../database/models/index.js'
-import jwt from 'jsonwebtoken'
 import sendEmail from '../../services/sendEmailGoogle.service.js'
 const { internalError, dataAlreadyExist } = responseTemplate
 
