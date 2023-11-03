@@ -9,7 +9,7 @@ const confirmEmailController = async (req, res) => {
 
 
         const usuario = await models.userModels.getInfoUserById(id_usuario);
-        console.log(usuario);
+        //console.log(usuario);
 
         if (!usuario) {
             return res.status(404).json(userNotFound())
@@ -18,7 +18,7 @@ const confirmEmailController = async (req, res) => {
             return res.status(400).json(incorrectCodeVerified())
         }
 
-        await models.userModels.updateDataUserById(id_usuario, { state_account: true, is_verified: true });
+        await models.userModels.updateDataUserById(id_usuario, { is_verified: true });
 
         const token = jwt.sign({ id_user: id_usuario }, process.env.KEY_SECRET_JWT)
         res.cookie('tkn', token)

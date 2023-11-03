@@ -5,7 +5,8 @@ import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 dotenv.config()
 import jwt from 'jsonwebtoken'
-
+import codeGenerator from '../../helpers/code_generator.js';
+import sendEmail from "../../services/sendEmailGoogle.service.js";
 const { internalError, userNotFound, accountDeactivated, passwordIncorrect } = responseTemplate
 const { userModels } = models
 
@@ -25,6 +26,9 @@ const sign = async (req, resp) => {
             return resp.status(411).json(passwordIncorrect())
         }
         if (!user_found.is_verified) {
+            const verify_Code = codeGenerator(4)
+            await userModels.updateDataUserById(user_found.id_user, { verify_Code })
+            sendEmail(user_found.email, user_found.fullname.split(' ')[0]).verificationEmail(verify_Code)
             return resp.status(401).json({
                 status: 'PENDING_TO_VERIFIED',
                 data: {
@@ -33,7 +37,7 @@ const sign = async (req, resp) => {
                 }
             })
         }
-        const token = jwt.sign({ id_user: user_found.id_user }, process.env.KEY_SECRET_JWT)
+        const token = jwt.sign({ id_user: user_found.id_user }, process.env.KEY_SECRET_JWT, { expiresIn: '1h' })
         resp.cookie('tkn', token)
 
         return resp.status(200).json({
