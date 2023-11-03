@@ -1,4 +1,5 @@
 import dotenv from 'dotenv'
+import { generateQueryUpdate } from '../tools/generateQueryUpdate.tool.js'
 dotenv.config()
 
 export default (pool) => {
@@ -30,18 +31,8 @@ export default (pool) => {
             return user_found.rows[0].id_user
         },
         updateDataUserById: async (id_user, data) => {
-            const keys_to_update = [];
-            const values_to_update = []
-            let index = 1
-            for (const i in data) {
-                keys_to_update.push(`${i} = ${'$' + index}`)
-                values_to_update.push(data[i])
-                index++
-            }
-            values_to_update.push(id_user)
-            const query = `UPDATE users SET  ${keys_to_update.join(', ')} WHERE id_user =${'$' + values_to_update.length} RETURNING id_user`
+            const { query, values_to_update } = generateQueryUpdate(id_user, data)
             const resp_db = await source(query, values_to_update)
-
             console.log('query realizada', query)
             return resp_db.rows[0]
         }
