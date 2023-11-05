@@ -14,6 +14,7 @@ const sign = async (req, resp) => {
     const { email, password } = req.body;
     try {
         const user_found = await userModels.getUserByEmail(email)
+        console.log(user_found);
         if (!user_found) {
             return resp.status(404).json(userNotFound())
         }
@@ -37,15 +38,15 @@ const sign = async (req, resp) => {
                 }
             })
         }
-        const token = jwt.sign({ id_user: user_found.id_user }, process.env.KEY_SECRET_JWT, { expiresIn: '1h' })
+        const token = jwt.sign({ id_user: user_found.id_user }, process.env.KEY_SECRET_JWT, { expiresIn: '6h' })
         resp.cookie('tkn', token)
 
         return resp.status(200).json({
+            tkn: token,
             data: {
                 id_user: user_found.id_user,
                 username: user_found.username,
                 email: user_found.email,
-                url_avatar: user_found.url_avatar
             }
         })
     } catch (error) {

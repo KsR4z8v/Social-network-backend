@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import { generateQueryUpdate } from '../tools/generateQueryUpdate.tool.js'
+import { generateQuery } from '../tools/generateQuery.tool.js'
 dotenv.config()
 
 export default (pool) => {
@@ -16,28 +16,25 @@ export default (pool) => {
             return user_found.rows[0]
         },
         getInfoUserById: async (id_user,) => {
-            const user_found = await source('SELECT fullname,username,phone_number,email,url_avatar,date_born,verify_code,password from users where id_user = $1', [id_user])
+            const user_found = await source('SELECT fullname,username,phone_number,email,url_avatar,date_born,verify_code,password,user_bio from users where id_user = $1', [id_user])
             return user_found.rows[0]
         },
         verifyIfExistUser: async (username, email) => {
             const user_found = await source('SELECT username,email from users where email = $1 or username= $2', [email, username])
             return user_found.rows[0]
         },
-        insertUser: async (username, password, email, fullname, phone_number, date_created, date_born, verify_code) => {
-            const user_found = await source(`INSERT INTO  users 
-        (username,email,password,fullname,phone_number,date_created,date_born,verify_code,url_avatar)
-                VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id_user`,
-                [username, email, password, fullname, phone_number, date_created, date_born, verify_code, process.env.AVATAR_DEFAULT])
-            return user_found.rows[0].id_user
+        insertUser: async (data) => {
+            const { query, values } = generateQuery(undefined, data).insert('users')
+            console.log(query, values);
+            const user_insert = await source(query, values)
+            return user_insert.rows[0]
         },
         updateDataUserById: async (id_user, data) => {
-            const { query, values_to_update } = generateQueryUpdate(id_user, data)
-            const resp_db = await source(query, values_to_update)
+            const { query, values } = generateQuery(id_user, data).update('users')
+            const resp_db = await source(query, values)
             console.log('query realizada', query)
             return resp_db.rows[0]
         }
-
-
     }
     )
 }
