@@ -23,7 +23,7 @@ const confirmEmailController = async (req, res) => {
         const token = jwt.sign({ id_user: id_usuario }, process.env.KEY_SECRET_JWT)
         res.cookie('tkn', token)
 
-        res.status(200).json({ message: 'Ok' });
+        res.status(200).json({ tkn: token, message: 'Ok' });
 
     } catch (error) {
         console.log(error);

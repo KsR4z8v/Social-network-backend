@@ -6,7 +6,7 @@ const { internalError, userNotFound, passwordIncorrect } = responseTemplate
 
 const passwordUpdateController = async (req, resp) => {
     try {
-        const { id_user } = req.params
+        const id_user = req.id_user
         const { old_password, new_password } = req.body
 
         const user_found = await models.userModels.getInfoUserById(id_user)
@@ -26,7 +26,7 @@ const passwordUpdateController = async (req, resp) => {
             })
         }
         await models.userModels.updateDataUserById(id_user, { password: password_new_hash });
-        resp.sendStatus(200)
+        resp.status(200).json({ message: 'OK' })
     } catch (error) {
         console.log(error);
         resp.status(500).json(internalError())
