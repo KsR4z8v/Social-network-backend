@@ -5,7 +5,7 @@ const verify_token = (req, resp, next) => {
         const { tkn } = req.cookies
         const { auth } = req.headers
         if (!tkn && !auth) {
-            return resp.status(403).json({ message: 'token not found' })
+            return resp.status(401).json({ message: 'token not found' })
         }
 
         const bearer_token = auth?.split('Bearer token:')[1]
