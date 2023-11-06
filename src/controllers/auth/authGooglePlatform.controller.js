@@ -5,13 +5,13 @@ import generateCode from '../../helpers/code_generator.js'
 import models from '../../database/models/index.js'
 import jwt from "jsonwebtoken";
 import encryptPassword from '../../helpers/encrypt.js'
-
+import { generateDateToRegister } from '../../helpers/dateFunctions.js';
 const authGooglePlatformController = async (req, resp) => {
 
     try {
         const { credentials } = req.body
 
-        //console.log(credentials.credential);
+
         const payload = await validationTokenGoogle(credentials.credential)
         if (!payload) {
             resp.status(403).json({ message: 'El token no es valido' })
@@ -25,8 +25,8 @@ const authGooglePlatformController = async (req, resp) => {
             const date_created = new Date()
             const password = await encryptPassword(generateCode(10))
             const data = {
-                phone_number: '0000000000',
-                date_born: '1995-01-01',
+                phone_number: ' ',
+                date_born: generateDateToRegister(),
                 username: given_name,
                 password,
                 email, url_avatar: picture,
