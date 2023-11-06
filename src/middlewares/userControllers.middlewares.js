@@ -1,7 +1,7 @@
 
 import responseTemplates from "../handlersResponses/responseTemplates.js"
 const { invalidBodyKeys, invalidDateFormat, invalidFormatPassword, invalidEmailFormat } = responseTemplates
-
+import { validateDateToRegister } from "../helpers/dateFunctions.js"
 export const middleware_Sign = (req, resp, next) => {
     const { email, password } = req.body
     if (!email || !password) {
@@ -24,6 +24,9 @@ export const middleware_SignUp = (req, resp, next) => {
     const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!regex.test(date_born)) {
         return resp.status(422).json(invalidDateFormat());
+    }
+    if (!validateDateToRegister(date_born)) {
+        return resp.status(422).json(invalidEmailFormat('Debes de ser mayor de edad para poder registrarte'));
     }
     if (!regex_email.test(email)) {
         return resp.status(422).json(invalidEmailFormat());
@@ -82,7 +85,7 @@ export const middleware_passwordUpdate = (req, resp, next) => {
     if (!old_password || !new_password) {
         return resp.status(400).json({ message: 'Debes ingresar todos los parametros ' })
     }
-    next()e
+    next()
 }
 
 
