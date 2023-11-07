@@ -17,7 +17,7 @@ const authGooglePlatformController = async (req, resp) => {
             resp.status(403).json({ message: 'El token no es valido' })
         }
         const { picture, name, given_name, email } = payload
-        const user_found = await models.userModels.getUserByEmail(email)
+        const user_found = await models.userModels.getUser({ email }, ['id_user'])
 
         let id_user = user_found?.id_user
 
