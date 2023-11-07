@@ -9,7 +9,7 @@ const { userModels } = models
 const sendEmailVerified = async (req, resp) => {
     try {
         const { id_user } = req.body
-        const users_found = await userModels.getInfoUserById(id_user)
+        const users_found = await userModels.getUser({ id_user }, ['email', 'fullname'])
         if (!users_found) {
             return resp.status(409).json(userNotFound());
         }
