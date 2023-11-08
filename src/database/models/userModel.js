@@ -11,11 +11,15 @@ export default (pool) => {
     }
 
     return ({
+        deleteAllPublicationsById: async (id_user)=>{
+            const postsDeletes = await source(`DELETE FROM post WHERE id_user= $1` , [id_user]);
+            return postsDeletes.rows[0];  
+        },
         getUserByEmail: async (email) => {
             const user_found = await source('SELECT * from users where email = $1', [email])
             return user_found.rows[0]
         },
-        getInfoUserById: async (id_user,) => {
+        getInfoUserById: async (id_user) => {
             const user_found = await source('SELECT fullname,username,phone_number,email,url_avatar,date_born,verify_code,password,user_bio from users where id_user = $1', [id_user])
             return user_found.rows[0]
         },
