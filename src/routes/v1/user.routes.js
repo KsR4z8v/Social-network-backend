@@ -15,5 +15,7 @@ user_routes.post('/sendEmail_verified', controllers.sendEmailVerified)
 user_routes.post('/sign_google_platform', controllers.authGooglePlatformController)
 user_routes.post('/sendEmail_recoveryPassword', controllers.recoveryPassword)
 user_routes.post('/restore_password', verify_token, controllers.restorePasswordController)
+user_routes.delete('/deleteAccount', verify_token, controllers.deleteAccountController);
+
 
 export default user_routes
