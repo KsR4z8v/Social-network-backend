@@ -20,14 +20,14 @@ const messageVerifyCode = (name, code) => `
 </html>
 `
 
-const resetPasswordLink = (name,accessToken) => ` 
+const resetPasswordLink = (name, accessToken) => ` 
 <html>
     <h1 text-align:center; style="font-size: 60px;margin: 20px;font-family: 'IBM Plex Sans', sans-serif;font-family: 'Satisfy', cursive;font-weight: 900;">SnapWire</h1>
     <body style="font-family: Arial, sans-serif; color: #333333; background-color: #f2f2f2; padding: 20px;">
         <h1 style="color: #0066cc;">Hola ! ${name} 🖐️</h1>
         <p style="font-size: 16px;">Recupera tu contraseña </p>
         <a href="${process.env.SECURE_URL_RESET_PASSWORD}/${accessToken}" ><div id="button_confirm" style="height:min-content; width:100%; background-color: #1399f3; color:white; text-align:center; font-size:20px"> <b>RESTABLECER CONTRASEÑA</b></div></a>
-        <p style="font-size: 14px;">si tu no estas intenta cambiar tu contraseña llorelo papa, se lo estan hackeando</p>
+        <p style="font-size: 14px;">...</p>
         <p style="font-size: 12px; color: #999999;">SnapWire</p>
     </body> 
 </html>`
@@ -57,7 +57,7 @@ const sendEmail = (email, name) => {
             return await resource(messageVerifyCode(name, code), "Codigo de verificacion")
         },
         resetPasswordLink: async (accessToken) => {
-            return await resource(resetPasswordLink(name,accessToken), "Restablecer contraseña")
+            return await resource(resetPasswordLink(name, accessToken), "Restablecer contraseña")
         }
     })
 }
