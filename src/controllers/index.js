@@ -7,6 +7,7 @@ import passwordUpdateController from "./user/password.update.controller.js";
 import avatarUpdateController from "./user/avatar.update.controller.js";
 import sendEmailVerified from "./auth/sendEmailVerified.controller.js";
 import authGooglePlatformController from "./auth/authGooglePlatform.controller.js";
+import recoveryPassword from "./user/recovery.password.controller.js";
 export default {
     sign,
     signUpController,
@@ -16,6 +17,7 @@ export default {
     passwordUpdateController,
     avatarUpdateController,
     sendEmailVerified,
-    authGooglePlatformController
+    authGooglePlatformController,
+    recoveryPassword
 
 }
