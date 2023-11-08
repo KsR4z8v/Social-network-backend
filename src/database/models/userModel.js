@@ -11,6 +11,10 @@ export default (pool) => {
     }
 
     return ({
+        deleteAllPublicationsById: async (id_user)=>{
+            const postsDeletes = await source(`DELETE FROM post WHERE id_user= $1` , [id_user]);
+            return postsDeletes.rows[0];  
+        },
         getUser: async (filters, selectors) => {
             const { query, values } = generateQuery('users').select(filters, selectors)
             console.log('QUERY GENERADA', query, values);
