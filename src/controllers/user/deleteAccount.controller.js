@@ -1,4 +1,7 @@
-import models from "../../database/models/index.js";
+import models from '../../database/models/index.js';
+import responseTemplate from '../../handlersResponses/responseTemplates.js';
+
+const { internalError, userNotFound } = responseTemplate
 
 const deleteAccountController = async (req, res) => {
   try {
@@ -6,24 +9,25 @@ const deleteAccountController = async (req, res) => {
     const { confirm } = req.body;
 
     if (confirm == false) {
-      return res.sendStatus(200);
+      return res.sendStatus(204);
     } else {
       // cambiar el estado de la cuenta a desactivado
       const disabledUser = await models.userModels.updateDataUserById(
         id_usuario,
-        { state_account: "deactived" }
+        { state_account: 0 }
       );
       if (!disabledUser) {
         return res.status(404).json(userNotFound());
       }
       // eliminar todas las publicaciones del usuario
-      const postsDeletes = await models.userModels.deleteAllPublicationsById(
-        id_usuario
-      );
+      /*   const postsDeletes = await models.userModels.deleteAllPublicationsById(
+          id_usuario
+        ); */
 
       res.status(200).json({ message: "Your account has been deactivated" });
     }
   } catch (err) {
+    console.log(err);
     res.status(500).json(internalError());
   }
 };
