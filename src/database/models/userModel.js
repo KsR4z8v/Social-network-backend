@@ -11,23 +11,6 @@ export default (pool) => {
     }
 
     return ({
-        getUserByEmail: async (email) => {
-            const user_found = await source('SELECT * from users where email = $1', [email])
-            return user_found.rows[0]
-        },
-        getInfoUserById: async (id_user,) => {
-            const { query, values } = generateQuery('users').select({ id_user }, ["fullname", "username", "phone_number", "email", "url_avatar", "date_born", "verify_code", "password", "user_bio"])
-            // const user_found = await source('SELECT fullname,username,phone_number,email,url_avatar,date_born,verify_code,password,user_bio from users where id_user = $1', [id_user])
-            console.log('QUERY GENERADA', query)
-            const user_found = await source(query, values)
-            return user_found.rows[0]
-        },
-        verifyIfExistUser: async (username, email) => {
-            const { query, values } = generateQuery('users').select({ username, email }, ['username', 'email'])
-            console.log('QUERY GENERADA', query)
-            const user_found = await source(query, values)
-            return user_found.rows[0]
-        },
         getUser: async (filters, selectors) => {
             const { query, values } = generateQuery('users').select(filters, selectors)
             console.log('QUERY GENERADA', query, values);

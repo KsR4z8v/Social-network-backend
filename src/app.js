@@ -5,7 +5,9 @@ import config from "./configs/config.js";
 import app_routes from "./routes/app.routes.js";
 import expressfileupload from 'express-fileupload'
 import cookieparser from 'cookie-parser'
+import logger from "./middlewares/logger.middleware.js";
 app.use(cors(config.config_cors))
+app.use(logger)
 app.use(cookieparser('_-__-_'))
 app.use(Express.json())
 app.use(expressfileupload())
