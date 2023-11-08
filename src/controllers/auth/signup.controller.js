@@ -11,7 +11,7 @@ const { internalError, dataAlreadyExist } = responseTemplate
 const signUpController = async (req, resp) => {
     try {
         let { username, email, password, fullname, phone_number, date_born } = req.body;
-        const users_found = await models.userModels.verifyIfExistUser(username, email)
+        const users_found = await models.userModels.getUser({ username, email }, [])
 
         if (users_found) {
             return resp.status(409).json(dataAlreadyExist());

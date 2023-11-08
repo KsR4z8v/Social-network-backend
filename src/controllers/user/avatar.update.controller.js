@@ -10,7 +10,7 @@ const avatarUpdateController = async (req, resp) => {
 
         const { avatar_file } = req?.files
 
-        const user_found = await models.userModels.getInfoUserById(id_user)
+        const user_found = await models.userModels.getUser({ id_user }, ['url_avatar'])
 
         if (!user_found) {
             return resp.status(404).json(userNotFound())

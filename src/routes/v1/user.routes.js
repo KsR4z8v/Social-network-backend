@@ -13,6 +13,10 @@ user_routes.patch('/data_update', verify_token, middleware_DataUpdate, controlle
 user_routes.post('/password_update', verify_token, middleware_passwordUpdate, controllers.passwordUpdateController)
 user_routes.post('/sendEmail_verified', controllers.sendEmailVerified)
 user_routes.post('/sign_google_platform', controllers.authGooglePlatformController)
+<<<<<<< HEAD
 user_routes.delete('/deleteAccount' , verify_token);
+=======
+user_routes.post('/recovery_password', controllers.recoveryPassword)
+>>>>>>> 62e7630e9f96c99593c494142792e08f9204ca1b
 
 export default user_routes
