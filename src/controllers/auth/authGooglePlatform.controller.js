@@ -10,8 +10,6 @@ const authGooglePlatformController = async (req, resp) => {
 
     try {
         const { credentials } = req.body
-
-
         const payload = await validationTokenGoogle(credentials.credential)
         if (!payload) {
             resp.status(403).json({ message: 'El token no es valido' })

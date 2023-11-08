@@ -11,4 +11,5 @@ export default {
         privateKey: process.env.PRIVATE_KEY_IMAGEKIT,
         urlEndpoint: process.env.URL_ENDPOINT_IMAGEKIT,
     }
+
 }
