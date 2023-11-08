@@ -13,7 +13,7 @@ const verify_token = (req, resp, next) => {
         jwt.verify(tkn || bearer_token, process.env.KEY_SECRET_JWT)
         const data_tkn = jwt.decode(tkn || bearer_token)
         req.id_user = data_tkn.id_user
-
+        req.authorization = data_tkn?.authorization
         next()
     } catch (error) {
         console.log(error);

@@ -4,7 +4,7 @@ import codeGenerator from "../../helpers/code_generator.js";
 import sendEmail from "../../services/sendEmailGoogle.service.js";
 import jwt from 'jsonwebtoken'
 
-const { internalError, userNotFound, passwordIncorrect } = responseTemplate
+const { internalError, userNotFound } = responseTemplate
 const { userModels } = models
 
 
@@ -22,16 +22,13 @@ const recoveryPassword = async (req, resp) => {
         if (!user_found.state_account) {
             return resp.status(404).json(accountDeactivated())
         }
-
-        const token = jwt.sign({ id_user: user_found.id_user }, process.env.KEY_SECRET_JWT, { expiresIn: '1h' })
+        const authorization = jwt.sign({ code: codeGenerator(10) }, process.env.RESTORE_KEY_PASSWORD, { expiresIn: '10m' })
+        const token = jwt.sign({ id_user: user_found.id_user, authorization }, process.env.KEY_SECRET_JWT, { expiresIn: '1h' })
         sendEmail(email, user_found.fullname.split(' ')[0]).resetPasswordLink(token)
 
 
         return resp.status(200).json({
-            tkn: token,
-            data: {
-                message: "ok"
-            }
+            message: "ok"
         })
     } catch (error) {
         console.log(error);

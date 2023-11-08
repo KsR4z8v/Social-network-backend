@@ -13,6 +13,7 @@ user_routes.patch('/data_update', verify_token, middleware_DataUpdate, controlle
 user_routes.post('/password_update', verify_token, middleware_passwordUpdate, controllers.passwordUpdateController)
 user_routes.post('/sendEmail_verified', controllers.sendEmailVerified)
 user_routes.post('/sign_google_platform', controllers.authGooglePlatformController)
-user_routes.post('/recovery_password', controllers.recoveryPassword)
+user_routes.post('/sendEmail_recoveryPassword', controllers.recoveryPassword)
+user_routes.post('/restore_password', verify_token, controllers.restorePasswordController)
 
 export default user_routes
