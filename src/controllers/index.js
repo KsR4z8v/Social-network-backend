@@ -8,6 +8,7 @@ import avatarUpdateController from "./user/avatar.update.controller.js";
 import sendEmailVerified from "./auth/sendEmailVerified.controller.js";
 import authGooglePlatformController from "./auth/authGooglePlatform.controller.js";
 import recoveryPassword from "./user/recovery.password.controller.js";
+import deleteAccountController from "./user/deleteAccount.controller.js";
 export default {
     sign,
     signUpController,
@@ -18,6 +19,6 @@ export default {
     avatarUpdateController,
     sendEmailVerified,
     authGooglePlatformController,
-    recoveryPassword
-
+    recoveryPassword,
+    deleteAccountController
 }
