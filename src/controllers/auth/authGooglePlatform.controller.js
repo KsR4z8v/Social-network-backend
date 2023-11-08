@@ -10,14 +10,12 @@ const authGooglePlatformController = async (req, resp) => {
 
     try {
         const { credentials } = req.body
-
-
         const payload = await validationTokenGoogle(credentials.credential)
         if (!payload) {
             resp.status(403).json({ message: 'El token no es valido' })
         }
         const { picture, name, given_name, email } = payload
-        const user_found = await models.userModels.getUserByEmail(email)
+        const user_found = await models.userModels.getUser({ email }, ['id_user'])
 
         let id_user = user_found?.id_user
 
@@ -29,6 +27,7 @@ const authGooglePlatformController = async (req, resp) => {
                 date_born: generateDateToRegister(),
                 username: given_name,
                 password,
+                is_verified: true,
                 email, url_avatar: picture,
                 fullname: name,
                 date_created
