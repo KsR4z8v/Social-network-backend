@@ -27,6 +27,7 @@ const authGooglePlatformController = async (req, resp) => {
                 date_born: generateDateToRegister(),
                 username: given_name,
                 password,
+                is_verified: true,
                 email, url_avatar: picture,
                 fullname: name,
                 date_created
