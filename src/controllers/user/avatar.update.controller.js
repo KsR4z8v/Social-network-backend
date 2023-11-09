@@ -1,7 +1,7 @@
 import models from '../../database/models/index.js';
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 
-import { upload_Images, delete_image } from '../../services/imageKit.js';
+import { upload_Media, delete_Media } from '../../services/imageKit.js';
 const { internalError, userNotFound } = responseTemplate
 
 const avatarUpdateController = async (req, resp) => {
@@ -23,13 +23,13 @@ const avatarUpdateController = async (req, resp) => {
             await delete_image([id_file])
         }
 
-        const meta_data = await upload_Images([avatar_file], process.env.AVATARS_FOLDER_DEST)
+        const meta_data = await upload_Media([avatar_file], process.env.AVATARS_FOLDER_DEST)
 
         if (meta_data.length === 0) {
             return resp.status(502).json(internalError())
         }
         const resp_db = await models.userModels.updateDataUserById(id_user, {
-            url_avatar: meta_data[0].url + '*key:*' + meta_data[0].id_image
+            url_avatar: meta_data[0].url_media + '*key:*' + meta_data[0].id_kit
         })
 
         return resp.status(201).json({ message: 'OK' })
