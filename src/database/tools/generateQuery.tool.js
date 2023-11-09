@@ -16,16 +16,16 @@ export const generateQuery = (table) => {
         return { keys, values }
     }
     return ({
-        update: (id_user, data) => {
+        update: (id_user, data, returns) => {
             const { keys, values } = generate_payload('to_update', data)
             values.push(id_user)
             console.log(keys, values);
-            const query = `UPDATE ${table} SET  ${keys.join(', ')} WHERE id_user =${'$' + values.length} RETURNING id_user`
+            const query = `UPDATE ${table} SET  ${keys.join(', ')} WHERE id_user =${'$' + values.length} RETURNING ${returns.join(',')}`
             return { query, values }
         },
-        insert: (data) => {
+        insert: (data, returns) => {
             const { keys, values } = generate_payload('to_insert', data)
-            const query = `INSERT INTO ${table} (${Object.keys(data).join(', ')} ) VALUES (${keys.join(', ')}) RETURNING id_user`
+            const query = `INSERT INTO ${table} (${Object.keys(data).join(', ')} ) VALUES (${keys.join(', ')}) RETURNING ${returns.join(',')}`
             return { query, values }
         },
         select: (filters, selectors) => {
