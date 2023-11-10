@@ -16,10 +16,10 @@ export default (pool) => {
             from posts p
             join users u on u.id_user = p.id_author
             left join media_post mp using(id_post) 
-            ${id_user ? `WHERE u.id_user = ${id_user}` : ''}
+            ${id_user ? `WHERE u.id_user = ${id_user} AND p.state_post = TRUE` : 'WHERE  p.state_post = TRUE'}
             group by p.id_post,id_author,text,date_upload,username_author,url_avatar_author,mp.id_post
             order by date_upload desc
-            LIMIT 10;`
+            LIMIT 100;`
             const posts_found = await source(query)
             return posts_found.rows
         },
