@@ -12,7 +12,8 @@ export default (pool) => {
 
     return ({
         getUser: async (filters, selectors) => {
-            const { query, values } = generateQuery('users').select(filters, selectors)
+            const joins = ['JOIN account_settings ast using(id_user)', 'LEFT JOIN permissions per on ast.permission = per.id_permission']
+            const { query, values } = generateQuery('users').select(filters, selectors, joins)
             console.log('QUERY GENERADA', query, values);
             const user_found = await source(query, values)
             return user_found.rows[0]
@@ -25,6 +26,12 @@ export default (pool) => {
         },
         updateDataUserById: async (id_user, data) => {
             const { query, values } = generateQuery('users').update(id_user, data, ['id_user'])
+            const resp_db = await source(query, values)
+            console.log('query realizada', query)
+            return resp_db.rows[0]
+        },
+        updateSettingsUserById: async (id_user, data) => {
+            const { query, values } = generateQuery('account_settings').update(id_user, data, ['id_user'])
             const resp_db = await source(query, values)
             console.log('query realizada', query)
             return resp_db.rows[0]
