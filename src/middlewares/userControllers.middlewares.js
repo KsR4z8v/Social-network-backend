@@ -89,4 +89,30 @@ export const middleware_passwordUpdate = (req, resp, next) => {
 }
 
 
+export const middleware_sendEmail = (req, resp, next) => {
+    const { type } = req.query
+    const { email, id_user } = req.body
+    if (!type || type.trim() === '') {
+        return resp.status(400).json({ message: 'Debe de contener un tipo de envio mediante query' })
+    }
+    if (!['recoveryPassword', 'verifyAccount'].includes(type)) {
+        return resp.status(422).json({ message: 'El tipo no es correcto para el envio del correo' })
+    }
+
+    if (!email && !id_user) {
+        return resp.status(400).json({ message: 'Se necesita un id o el correo electronico del usuario registrado' })
+    }
+
+    const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (email && !regex_email.test(email)) {
+        return resp.status(422).json({ message: 'El correo electronico no tiene un formato valido' })
+    }
+    if (id_user && !Number.isInteger(id_user)) {
+        return resp.status(422).json({ message: 'El id del usuario no tiene un formato valido' })
+    }
+
+    next()
+
+}
 
