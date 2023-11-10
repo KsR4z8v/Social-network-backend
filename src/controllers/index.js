@@ -10,6 +10,8 @@ import authGooglePlatformController from "./auth/authGooglePlatform.controller.j
 import recoveryPassword from "./user/recovery.password.controller.js";
 import restorePasswordController from "./user/restore_password.controller.js";
 import deleteAccountController from "./user/deleteAccount.controller.js";
+import createPostController from "./posts/createPost.controller.js";
+import getPostsController from "./posts/getPosts.controller.js";
 export default {
     sign,
     signUpController,
@@ -22,5 +24,7 @@ export default {
     authGooglePlatformController,
     recoveryPassword,
     restorePasswordController,
-    deleteAccountController
+    deleteAccountController,
+    createPostController,
+    getPostsController
 }
