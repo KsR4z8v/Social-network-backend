@@ -19,10 +19,6 @@ const deleteAccountController = async (req, res) => {
       if (!disabledUser) {
         return res.status(404).json(userNotFound());
       }
-      // eliminar todas las publicaciones del usuario
-      /*   const postsDeletes = await models.userModels.deleteAllPublicationsById(
-          id_usuario
-        ); */
 
       res.status(200).json({ message: "Your account has been deactivated" });
     }

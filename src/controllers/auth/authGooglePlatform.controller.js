@@ -6,8 +6,8 @@ import models from '../../database/models/index.js'
 import jwt from "jsonwebtoken";
 import encryptPassword from '../../helpers/encrypt.js'
 import { generateDateToRegister } from '../../helpers/dateFunctions.js';
+import TokenGoogleInvalid from "../../exceptions/TokenGoogleInvalid.exception.js";
 const authGooglePlatformController = async (req, resp) => {
-
     try {
         const { credentials } = req.body
         const payload = await validationTokenGoogle(credentials.credential)
@@ -41,7 +41,7 @@ const authGooglePlatformController = async (req, resp) => {
         resp.cookie('tkn', tkn)
         resp.status(200).json({ tkn, message: 'OK' })
     } catch (error) {
-        console.log(error);
+        if (error instanceof TokenGoogleInvalid) return resp.status(404).json({ message: error.message })
         resp.status(500).json(internalError())
     }
 }

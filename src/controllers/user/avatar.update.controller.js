@@ -20,7 +20,7 @@ const avatarUpdateController = async (req, resp) => {
         const id_file = url_parts.length === 2 ? url_parts.pop() : undefined
 
         if (id_file) {
-            await delete_image([id_file])
+            await delete_Media([id_file])
         }
 
         const meta_data = await upload_Media([avatar_file], process.env.AVATARS_FOLDER_DEST)
