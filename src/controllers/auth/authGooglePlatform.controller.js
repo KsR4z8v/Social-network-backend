@@ -1,6 +1,6 @@
 import validationTokenGoogle from "../../helpers/validationTokenGoogle.js";
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
-const { internalError } = responseTemplate
+const { internalError, accountDeactivated } = responseTemplate
 import generateCode from '../../helpers/code_generator.js'
 import models from '../../database/models/index.js'
 import jwt from "jsonwebtoken";
@@ -15,7 +15,7 @@ const authGooglePlatformController = async (req, resp) => {
             resp.status(403).json({ message: 'El token no es valido' })
         }
         const { picture, name, given_name, email } = payload
-        const user_found = await models.userModels.getUser({ email }, ['id_user'])
+        const user_found = await models.userModels.getUser({ email }, ['id_user', 'state_account'])
 
         let id_user = user_found?.id_user
 
@@ -35,7 +35,9 @@ const authGooglePlatformController = async (req, resp) => {
             const resp_db = await models.userModels.insertUser(data)
             id_user = resp_db.id_user
         }
-        console.log(id_user);
+        if (!user_found?.state_account) {
+            return resp.status(403).json(accountDeactivated())
+        }
         const tkn = jwt.sign({ id_user }, process.env.KEY_SECRET_JWT)
 
         resp.cookie('tkn', tkn)
