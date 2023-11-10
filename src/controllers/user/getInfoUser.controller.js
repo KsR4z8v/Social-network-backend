@@ -10,7 +10,7 @@ const getInfoUserController = async (req, resp) => {
             "phone_number",
             "email", "url_avatar",
             "date_born",
-            "verify_code",
+            "id_user",
             "password",
             "user_bio"])
 
