@@ -17,7 +17,7 @@ const confirmEmailController = async (req, res) => {
             return res.status(400).json(incorrectCodeVerified())
         }
 
-        await models.userModels.updateDataUserById(id_usuario, { is_verified: true });
+        await models.userModels.updateSettingsUserById(id_usuario, { is_verified: true });
 
         const token = jwt.sign({ id_user: id_usuario }, process.env.KEY_SECRET_JWT)
         res.cookie('tkn', token)

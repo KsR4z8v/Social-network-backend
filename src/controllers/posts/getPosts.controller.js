@@ -14,8 +14,11 @@ const getPostsController = async (req, resp) => {
         if (Object.keys(req.query).length === 0) {
             posts = await postModels.getPosts()
         }
+        if (req.query.self_user) {
+            posts = await postModels.getPosts(parseInt(req.query.self_user), true)
+        }
         if (req.query.by_user) {
-            posts = await postModels.getPosts(parseInt(req.query.by_user))
+            posts = await postModels.getPosts(parseInt(req.query.by_user), false)
         }
 
         posts = posts.map(p => {
