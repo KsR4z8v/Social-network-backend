@@ -5,13 +5,14 @@ const { internalError, userNotFound } = responseTemplate
 const getInfoUserController = async (req, resp) => {
     try {
         const id_user = req.id_user
-        const resp_db = await models.userModels.getUser({ id_user }, ["fullname",
+        const resp_db = await models.userModels.getUser({ id_user }, [
+            "fullname",
             "username",
             "phone_number",
-            "email", "url_avatar",
+            "email",
+            "url_avatar",
             "date_born",
             "id_user",
-            "password",
             "user_bio"])
 
         if (!resp_db) {
