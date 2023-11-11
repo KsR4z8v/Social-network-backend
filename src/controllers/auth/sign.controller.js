@@ -30,7 +30,7 @@ const sign = async (req, resp) => {
             const verify_Code = codeGenerator(4)
             await userModels.updateDataUserById(user_found.id_user, { verify_Code })
             sendEmail(user_found.email, user_found.fullname.split(' ')[0]).verificationEmail(verify_Code)
-            return resp.status(401).json({
+            return resp.status(200).json({
                 status: 'PENDING_TO_VERIFIED',
                 data: {
                     id_user: user_found.id_user,

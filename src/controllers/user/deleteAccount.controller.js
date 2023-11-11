@@ -12,9 +12,9 @@ const deleteAccountController = async (req, res) => {
       return res.sendStatus(204);
     } else {
       // cambiar el estado de la cuenta a desactivado
-      const disabledUser = await models.userModels.updateDataUserById(
+      const disabledUser = await models.userModels.updateSettingsUserById(
         id_usuario,
-        { state_account: 0 }
+        { state_account: false }
       );
       if (!disabledUser) {
         return res.status(404).json(userNotFound());
