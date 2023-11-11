@@ -1,6 +1,6 @@
 export default ({
     userNotFound: (message) => ({ status: 'USER_NOT_FOUND', message: message ?? 'El usuario no existe' }),
-    accountDeactivated: (message) => ({ status: 'ACCOUNT_DEACTIVATED', message: message ?? 'la cuenta se encuentra desactivada' }),
+    accountDeactivated: (message) => ({ status: 'ACCOUNT_DEACTIVATED', message: message ?? 'Tu cuenta se encuentra desactivada' }),
     incorrectCodeVerified: (message) => ({ status: 'CODE_INCORRECT', message: message ?? 'Código de verificación incorrecto. Por favor verifique su correo e intentelo de nuevo.' }),
     dataAlreadyExist: (message) => ({ status: 'USER_ALREADY_EXIST', message: message ?? 'El correo o el username ya esta en uso' }),
     passwordIncorrect: (message) => ({ status: 'PASSWORD_INCORRECT', message: message ?? 'Tu contraseña no es correcta' }),

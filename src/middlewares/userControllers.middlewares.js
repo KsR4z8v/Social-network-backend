@@ -48,11 +48,15 @@ export const middleware_SignUp = (req, resp, next) => {
 
 
 export const middleware_DataUpdate = (req, resp, next) => {
-    const keys_valids = ['fullname', 'email', 'phone_number', 'date_born', 'username', 'user_bio']
-    const keys_invalids = ['password', 'state_account', 'is_verified', 'date_created', 'verify_code', 'url_avatar']
+    let keys_valids = ['fullname', 'email', 'phone_number', 'date_born', 'username', 'user_bio'];
+
+    if (req.query.data === 'config') {
+        keys_valids = ['view_private']
+    }
+
+    const keys_invalids = ['password', 'state_account', 'date_created', 'verify_code', 'url_avatar', 'email']
     const data = req.body
     const keys = Object.keys(data)
-    console.log(data);
 
     if (keys.length === 0) {
         return resp.status(400).json({ message: `Porfavor envia parametros a actualizar` })
