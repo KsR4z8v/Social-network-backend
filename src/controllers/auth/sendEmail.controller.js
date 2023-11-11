@@ -13,7 +13,7 @@ const sendEmailController = async (req, resp) => {
 
         const { id_user, email } = req.body
 
-        const user_found = await userModels.getUser({ id_user, email }, ['email', 'fullname', 'state_account'])
+        const user_found = await userModels.getUser({ id_user, email }, ['id_user', 'email', 'fullname', 'state_account'])
 
         if (!user_found) {
             return resp.status(409).json(userNotFound());

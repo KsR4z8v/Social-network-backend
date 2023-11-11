@@ -15,7 +15,7 @@ const restorePasswordController = async (req, resp) => {
         jwt.verify(auth, process.env.RESTORE_KEY_PASSWORD)
 
         const data_tkn = jwt.decode(auth)
-
+        console.log(id_user);
         const user_found = await userModels.getUser({ id_user }, ['id_user'])
 
         console.log(user_found);
