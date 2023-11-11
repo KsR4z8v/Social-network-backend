@@ -5,6 +5,7 @@ const pool = new Pool({
     ssl: true
 })
 
+
 pool.on("connect", function (connection) {
     // evento cuando se crea una nueva conexion
     console.log(new Date(), `✔️ SnapWire: Created new client,count:  ${pool.totalCount}`)
@@ -24,5 +25,6 @@ pool.on("acquire", function (connection) {
 pool.on("release", function (connection) {
     //console.log(" Connection has been released");
 });
+
 
 export default pool

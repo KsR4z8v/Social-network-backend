@@ -12,6 +12,7 @@ import restorePasswordController from "./user/restore_password.controller.js";
 import deleteAccountController from "./user/deleteAccount.controller.js";
 import createPostController from "./posts/createPost.controller.js";
 import getPostsController from "./posts/getPosts.controller.js";
+import likePostController from "./posts/like.controller.js"; 
 export default {
     sign,
     signUpController,
@@ -26,5 +27,6 @@ export default {
     restorePasswordController,
     deleteAccountController,
     createPostController,
-    getPostsController
+    getPostsController,
+    likePostController
 }
