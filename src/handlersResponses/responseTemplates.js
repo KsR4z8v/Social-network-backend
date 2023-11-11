@@ -9,4 +9,6 @@ export default ({
     invalidDateFormat: (message) => ({ status: 'INVALID_DATE_FORMAT', message: message ?? 'El formato de fecha es incorrecto' }),
     invalidFormatPassword: (message) => ({ status: 'INVALID_PASSWORD_FORMAT', message: message ?? 'El formato de la contraseña es incorrecto' }),
     invalidEmailFormat: (message) => ({ status: 'INVALID_EMAIL_FORMAT', message: message ?? 'El correo electronico no es valido' }),
+    insufficientPermits: (message) => ({ status: 'INSUFFICIENT_PERMITS', message: message ?? 'No tiene el permiso para realizar esta accion' }),
+    accountBanned: (message) => ({ status: 'ACCOUNT_BANNED', message: message ?? 'Su cuenta se encuentra banneada en estos momentos' }),
 }) 

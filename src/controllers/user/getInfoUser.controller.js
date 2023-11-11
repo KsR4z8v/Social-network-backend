@@ -2,7 +2,7 @@
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 import models from '../../database/models/index.js';
 import { query } from 'express';
-const { internalError, accountDeactivated } = responseTemplate
+const { internalError, accountDeactivated, userNotFound } = responseTemplate
 const getInfoUserController = async (req, resp) => {
     try {
         const id_user = req.id_user
@@ -11,7 +11,7 @@ const getInfoUserController = async (req, resp) => {
         let message_resp;
 
         if (req.query.view_foreign) {
-            resp_db = await models.userModels.getUser({ id_user: parseInt(req.query.view_foreign) }, ['fullname', 'username', 'url_avatar', 'user_bio', 'state_account'])
+            resp_db = await models.userModels.getUser({ id_user: parseInt(req.query.view_foreign) }, ['fullname', 'username', 'url_avatar', 'user_bio', 'state_account', 'view_private'])
             message_resp = accountDeactivated('Esta cuenta se encuentra desactivada')
         }
         if (!resp_db) {
@@ -24,6 +24,7 @@ const getInfoUserController = async (req, resp) => {
                 "date_born",
                 "id_user",
                 "user_bio",
+                'name_permission',
                 "state_account"])
             message_resp = accountDeactivated('Tu cuenta ha sido desactivada')
         }

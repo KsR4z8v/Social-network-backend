@@ -28,9 +28,9 @@ export const generateQuery = (table) => {
             const query = `INSERT INTO ${table} (${Object.keys(data).join(', ')} ) VALUES (${keys.join(', ')}) RETURNING ${returns.join(',')}`
             return { query, values }
         },
-        select: (filters, selectors) => {
+        select: (filters, selectors, joins) => {
             const { keys, values } = generate_payload('to_select', filters)
-            const query = `SELECT ${selectors.join(',')} FROM ${table} WHERE ${keys.join(' or ')}`
+            const query = `SELECT ${selectors.join(',')} FROM ${table} ${joins.join(' ')} WHERE ${keys.join(' or ')}`
             return { query, values }
         }
     })

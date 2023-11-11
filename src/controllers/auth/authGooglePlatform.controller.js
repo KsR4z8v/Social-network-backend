@@ -15,7 +15,7 @@ const authGooglePlatformController = async (req, resp) => {
             resp.status(403).json({ message: 'El token no es valido' })
         }
         const { picture, name, given_name, email } = payload
-        const user_found = await models.userModels.getUser({ email }, ['id_user', 'state_account'])
+        const user_found = await models.userModels.getUser({ email }, ['id_user', 'state_account',])
 
         let id_user = user_found?.id_user
 
@@ -27,7 +27,6 @@ const authGooglePlatformController = async (req, resp) => {
                 date_born: generateDateToRegister(),
                 username: given_name,
                 password,
-                is_verified: true,
                 email, url_avatar: picture,
                 fullname: name,
                 date_created
@@ -43,6 +42,7 @@ const authGooglePlatformController = async (req, resp) => {
         resp.cookie('tkn', tkn)
         resp.status(200).json({ tkn, message: 'OK' })
     } catch (error) {
+        console.log(error);
         if (error instanceof TokenGoogleInvalid) return resp.status(404).json({ message: error.message })
         resp.status(500).json(internalError())
     }

@@ -5,7 +5,7 @@ const { internalError, userNotFound } = responseTemplate
 const likePostController = async (req,res)=>{
     try{
         const id_post = req.rarams.id_post;
-        const likes = 0
+        const likes = await modelo.postModels.getLikesbyPost(id_post);
         const postLike = await modelo.postModels.updateDataPostById(id_post , {likes : likes + 1});
 
     }catch(err){
