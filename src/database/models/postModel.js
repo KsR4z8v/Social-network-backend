@@ -11,6 +11,10 @@ export default (pool) => {
     }
 
     return ({
+        // getLikes: async(id_post)=>{
+        //     const query = 
+
+        // },
         getPosts: async (id_user) => {
             const query = `select p.id_post,id_author,text,date_upload,u.username as username_author,u.url_avatar as url_avatar_author,array_agg(mp.url_media) as media_links
             from posts p
@@ -42,9 +46,10 @@ export default (pool) => {
             return post_insert.rows[0]
         },
         updateDataPostById: async (id_post, data) => {
-            const { query, values } = generateQuery('posts').update(id_post, data)
-            const resp_db = await source(query, values)
-            return resp_db.rows[0]
+            const { query, values } = generateQuery('posts').update(id_post, data, ['id'])
+            console.log('query: ',query, values)
+            // const resp_db = await source(query, values)
+            // return resp_db.rows[0]
         }
     }
     )
