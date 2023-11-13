@@ -43,8 +43,7 @@ const sendEmail = (email, name) => {
                 }
             }, (err, res) => {
                 if (err) {
-                    reject(err)
-                    return console.log('Error al enviar el correo:', err);
+                    return console.log('Error al enviar el correo');
                 }
                 console.log('Correo enviado correctamente:', res.data);
                 resolve(res.data)
