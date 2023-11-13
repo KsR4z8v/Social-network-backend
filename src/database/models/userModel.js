@@ -18,6 +18,15 @@ export default (pool) => {
             const user_found = await source(query, values)
             return user_found.rows[0]
         },
+        getRelationFriendsOfUser: async (id_user) => {
+            const friends_found = await source(`select rf.id_relation, json_build_array(u1.id_user ,u1.username,u1.url_avatar) as user1,json_build_array(u2.id_user ,u2.username ,u2.url_avatar ) as user2
+            from relation_friends rf
+            join users u1  on  rf.id_user1 = u1.id_user
+            join users u2 on rf.id_user2 = u2.id_user
+            where id_user1 = $1 or id_user2 = $1`, [id_user])
+            return friends_found.rows
+        },
+
         insertUser: async (data) => {
             const { query, values } = generateQuery('users').insert(data, ['id_user'])
             console.log(query, values);
