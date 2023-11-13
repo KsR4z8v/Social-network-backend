@@ -1,7 +1,7 @@
 import models from '../../database/models/index.js';
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 
-import { upload_Media, delete_Media } from '../../services/imageKit.js';
+import { upload_Media, delete_Media } from '../../services/imageKit.service.js';
 const { internalError, userNotFound } = responseTemplate
 
 const avatarUpdateController = async (req, resp) => {
