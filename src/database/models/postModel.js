@@ -11,19 +11,13 @@ export default (pool) => {
     }
 
     return ({
-
-        getLikesbyPost: async (id_post)=>{
-            const numlikes = await source(`SELECT likes from post WHERE id_post = $1` , [id_post]);
-            return numlikes[0].likes;
-        },
-
         getPosts: async (id_user, self = false) => {
             const query = `select p.id_post,id_author,text,date_upload,u.username as username_author,u.url_avatar as url_avatar_author,array_agg(mp.url_media) as media_links
             from posts p
             join users u on u.id_user = p.id_author
             left join media_post mp using(id_post) 
             join account_settings ast using(id_user) 
-            WHERE  ast.state_account = TRUE ${id_user ? `AND u.id_user = ${id_user} ${self ? '' : ` AND ast.view_private = FALSE`}` : ' AND p.state_post = TRUE'}
+            WHERE  ast.state_account = TRUE ${id_user ? `AND u.id_user = ${id_user} ${self ? '|' : ` AND ast.view_private = FALSE`}` : ' AND p.state_post = TRUE'}
             group by p.id_post,id_author,text,date_upload,username_author,url_avatar_author,mp.id_post
             order by date_upload desc
             LIMIT 100;`
@@ -54,6 +48,5 @@ export default (pool) => {
             const resp_db = await source(query, values)< V
             return resp_db.rows[0]
         }
-    }
-    )
+    })
 }
