@@ -8,7 +8,7 @@ const createCommentController = async (req,resp)=>{
         const id_usuario = req.id_user;
         const texto = req.body.text;
 
-        const user_found = await modelo.userModels.getUser({ id_usuario }, ['state_account', 'self_creation_post', 'permission'])
+        const user_found = await modelo.userModels.getUser({ id_usuario }, ['state_account', 'permission'])
         if (!user_found.state_account) {
             return resp.status(404).json(accountDeactivated())
         }
