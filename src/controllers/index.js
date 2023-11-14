@@ -12,6 +12,9 @@ import createPostController from "./posts/createPost.controller.js";
 import getPostsController from "./posts/getPosts.controller.js";
 import likePostController from "./posts/like.controller.js"; 
 import sendEmailController from "./auth/sendEmail.controller.js";
+import createComment from "./comments/createcomment.controller.js";
+import editComment from "./comments/createcomment.controller.js";
+import deleteComment from "./comments/createcomment.controller.js";
 export default {
     sign,
     signUpController,
@@ -26,5 +29,8 @@ export default {
     createPostController,
     getPostsController,
     likePostController,
-    sendEmailController
+    sendEmailController,
+    createComment,
+    editComment,
+    deleteComment
 }
