@@ -7,6 +7,7 @@ dotenv.config()
 import jwt from 'jsonwebtoken'
 import codeGenerator from '../../helpers/code_generator.js';
 import sendEmail from "../../services/sendEmailGoogle.service.js";
+import VerifyCodeRedisService from '../../database/redis/VerifyCodeRedisService.js';
 const { internalError, userNotFound, accountDeactivated, passwordIncorrect } = responseTemplate
 const { userModels } = models
 
@@ -27,8 +28,9 @@ const sign = async (req, resp) => {
             return resp.status(411).json(passwordIncorrect())
         }
         if (!user_found.is_verified) {
+            const serviceRedis = new VerifyCodeRedisService()
             const verify_Code = codeGenerator(4)
-            await userModels.updateDataUserById(user_found.id_user, { verify_Code })
+            await serviceRedis.setVerificationCode(user_found.id_user.toString(), verify_Code)
             sendEmail(user_found.email, user_found.fullname.split(' ')[0]).verificationEmail(verify_Code)
             return resp.status(200).json({
                 status: 'PENDING_TO_VERIFIED',

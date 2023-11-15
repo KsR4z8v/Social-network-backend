@@ -43,7 +43,7 @@ const authGooglePlatformController = async (req, resp) => {
         resp.status(200).json({ tkn, message: 'OK' })
     } catch (error) {
         console.log(error);
-        if (error instanceof TokenGoogleInvalid) return resp.status(404).json({ message: error.message })
+        if (error instanceof TokenGoogleInvalid) return resp.status(error.httpCode).json({ message: error.message })
         resp.status(500).json(internalError())
     }
 }
