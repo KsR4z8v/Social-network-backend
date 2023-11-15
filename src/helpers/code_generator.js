@@ -2,7 +2,7 @@ import crypto from 'crypto';
 
 
 const generarCodigoVerificacion = (longitud)=> {
-  const caracteresPermitidos = '0123456789';
+  const caracteresPermitidos = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let codigo = '';
 
   for (let i = 0; i < longitud; i++) {
