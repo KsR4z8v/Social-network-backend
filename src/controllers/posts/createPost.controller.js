@@ -2,7 +2,7 @@
 import models from '../../database/models/index.js'
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 import dotenv from 'dotenv'
-import { upload_Media } from '../../services/imageKit.js';
+import { upload_Media } from '../../services/imageKit.service.js';
 dotenv.config()
 const { internalError, accountDeactivated, insufficientPermits, accountBanned } = responseTemplate
 const { postModels, userModels } = models

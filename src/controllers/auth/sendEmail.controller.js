@@ -3,6 +3,7 @@ import responseTemplate from '../../handlersResponses/responseTemplates.js';
 import codeGenerator from "../../helpers/code_generator.js";
 import sendEmail from "../../services/sendEmailGoogle.service.js";
 import jwt from 'jsonwebtoken'
+import VerifyCodeRedisService from '../../database/redis/VerifyCodeRedisService.js';
 
 const { internalError, userNotFound } = responseTemplate
 const { userModels } = models
@@ -23,8 +24,9 @@ const sendEmailController = async (req, resp) => {
         }
         const user_fullname = user_found.fullname.split(' ')[0]
         if (type === 'verifyAccount') {
+            const serviceRedis = new VerifyCodeRedisService()
             const verify_Code = codeGenerator(4)
-            await userModels.updateDataUserById(id_user, { verify_Code })
+            await serviceRedis.setVerificationCode(id_user.toString(), verify_Code)
             sendEmail(user_found.email, user_fullname).verificationEmail(verify_Code)
         }
         if (type === 'recoveryPassword') {
