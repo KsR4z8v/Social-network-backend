@@ -13,7 +13,7 @@ const getCommentsController = async (req, resp) => {
             return resp.status(404).json({ message: 'La publicacion no tiene comentarios'});
         }
        
-        return resp.status(200).json({comments : comments})
+        return resp.status(200).json({comments : comments});
         
     } catch (error) {
         console.log(error);
