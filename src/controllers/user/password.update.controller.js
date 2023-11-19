@@ -1,7 +1,7 @@
 import models from '../../database/models/index.js'
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 import encryptPassword from '../../helpers/encrypt.js';
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 const { internalError, userNotFound, passwordIncorrect } = responseTemplate
 
 const passwordUpdateController = async (req, resp) => {

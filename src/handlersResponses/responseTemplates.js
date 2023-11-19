@@ -2,7 +2,7 @@ export default ({
     userNotFound: (message) => ({ status: 'USER_NOT_FOUND', message: message ?? 'El usuario no existe' }),
     accountDeactivated: (message) => ({ status: 'ACCOUNT_DEACTIVATED', message: message ?? 'Tu cuenta se encuentra desactivada' }),
     incorrectCodeVerified: (message) => ({ status: 'CODE_INCORRECT', message: message ?? 'Código de verificación incorrecto. Por favor verifique su correo e intentelo de nuevo.' }),
-    expireCode: (message) => ({ status: 'EXPIRED_CODE', message: message ?? 'El codigo de verificacion ha caducado' }),
+    expireCode: (message) => ({ status: 'EXPIRED_CODE', message: message ?? 'El codigo de verificacion ha caducado, intenta enviando de nuevo el correo' }),
     dataAlreadyExist: (message) => ({ status: 'USER_ALREADY_EXIST', message: message ?? 'El correo o el username ya esta en uso' }),
     passwordIncorrect: (message) => ({ status: 'PASSWORD_INCORRECT', message: message ?? 'Tu contraseña no es correcta' }),
     internalError: (message) => ({ status: 'INTERNAL_SERVER_ERROR', message: message ?? 'Error interno del servidor' }),

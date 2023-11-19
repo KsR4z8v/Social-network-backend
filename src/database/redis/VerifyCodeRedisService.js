@@ -12,7 +12,7 @@ class VerifyCodeRedisService {
     }
     async setVerificationCode(id_user, verification_code) {
         await this.client.connect()
-        await this.client.set(id_user, verification_code)
+        await this.client.set(id_user, verification_code, { EX: 60 * 10 })
         await this.client.disconnect()
     }
     async getVerificationCode(id_user) {

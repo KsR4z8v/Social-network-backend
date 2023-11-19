@@ -1,7 +1,7 @@
 
 import models from '../../database/models/index.js'
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import dotenv from 'dotenv'
 dotenv.config()
 import jwt from 'jsonwebtoken'
