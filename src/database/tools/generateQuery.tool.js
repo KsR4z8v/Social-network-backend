@@ -16,11 +16,11 @@ export const generateQuery = (table) => {
         return { keys, values }
     }
     return ({
-        update: (id_user, data, returns) => {
+        update: (condition, data, returns) => {
             const { keys, values } = generate_payload('to_update', data)
-            values.push(id_user)
-            console.log(keys, values);
-            const query = `UPDATE ${table} SET  ${keys.join(', ')} WHERE id_user =${'$' + values.length} RETURNING ${returns.join(',')}`
+            const key_condition = Object.keys(condition)[0]
+            values.push(condition[key_condition])
+            const query = `UPDATE ${table} SET  ${keys.join(', ')} WHERE ${key_condition}=${"$" + values.length} RETURNING ${returns.join(',')}`
             return { query, values }
         },
         insert: (data, returns) => {
