@@ -2,6 +2,7 @@
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 import models from '../../database/models/index.js';
 import filterFriend from '../../helpers/filterFriend.js'
+import formatUrlAvatar from '../../helpers/formatUrlAvatar.js';
 const { internalError, accountDeactivated, userNotFound } = responseTemplate
 const getInfoUserController = async (req, resp) => {
     try {
@@ -15,12 +16,12 @@ const getInfoUserController = async (req, resp) => {
             return resp.status(404).json(userNotFound())
         }
         if (!resp_db.state_account) {
-            return resp.status(403).json(accountDeactivated(req.query.view_foreign ? 'Esta cuenta se encuentra desactivada' : undefined))
+            return resp.status(404).json(accountDeactivated(req.query.view_foreign ? 'Esta cuenta se encuentra desactivada' : undefined))
         }
         //obtengo los amigos del user
         const friends_found = await models.userModels.getRelationFriendsOfUser(resp_db.id_user)
         resp_db.friends = filterFriend(resp_db.id_user, friends_found)
-        resp_db.url_avatar = resp_db.url_avatar?.split('*key:*').shift()
+        formatUrlAvatar([resp_db])
         resp.status(200).json(resp_db)
     } catch (error) {
         console.log(error);
