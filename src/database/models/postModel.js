@@ -12,13 +12,25 @@ export default (pool) => {
 
     return ({
         getPosts: async (id_user, self = false) => {
-            const query = `select p.id_post,id_author,text,date_upload,u.username as username_author,u.url_avatar as url_avatar_author,array_agg(mp.url_media) as media_links
-            from posts p
-            join users u on u.id_user = p.id_author
+            const query = `SELECT 
+            p.id_post,
+            p.likes,
+            id_author,
+            p.text,
+            date_upload,
+            u.username as username_author,
+            u.url_avatar as url_avatar_author,
+            array_agg(distinct mp.url_media) as media_links,
+            array_agg(distinct lk.id_user) as likes,
+            count(distinct cmt.id_comment) as countComments
+            FROM posts p
+            inner join users u on u.id_user = p.id_author
             left join media_post mp using(id_post) 
-            join account_settings ast using(id_user) 
-            WHERE  ast.state_account = TRUE ${id_user ? `AND u.id_user = ${id_user} ${self ? '|' : ` AND ast.view_private = FALSE`}` : ' AND p.state_post = TRUE'}
-            group by p.id_post,id_author,text,date_upload,username_author,url_avatar_author,mp.id_post
+            left join likes lk on lk.id_post = p.id_post AND lk.state_like = TRUE
+            left join comments cmt on cmt.id_post = p.id_post AND cmt.state_comment = TRUE 
+            inner join account_settings ast on ast.id_user =  u.id_user
+            WHERE  ast.state_account = TRUE  ${id_user ? `AND u.id_user = ${id_user} ${self ? '' : ` AND ast.view_private = FALSE AND p.state_post = TRUE`}` : ' AND p.state_post = TRUE'}
+            group by p.id_post,id_author,p.text,date_upload,username_author,url_avatar_author,mp.id_post
             order by date_upload desc
             LIMIT 100;`
             const posts_found = await source(query)
@@ -43,9 +55,8 @@ export default (pool) => {
             return post_insert.rows[0]
         },
         updateDataPostById: async (id_post, data) => {
-            const { query, values } = generateQuery('posts').update(id_post, data, ['id'])
-            console.log('query: ',query, values)
-            const resp_db = await source(query, values)< V
+            const { query, values } = generateQuery('posts').update({ id_post }, data, ['id_post'])
+            const resp_db = await source(query, values)
             return resp_db.rows[0]
         }
     })

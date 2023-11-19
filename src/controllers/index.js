@@ -10,12 +10,13 @@ import restorePasswordController from "./user/restore_password.controller.js";
 import deleteAccountController from "./user/deleteAccount.controller.js";
 import createPostController from "./posts/createPost.controller.js";
 import getPostsController from "./posts/getPosts.controller.js";
-import likePostController from "./posts/like.controller.js"; 
+import likePostController from "./posts/like.controller.js";
 import sendEmailController from "./auth/sendEmail.controller.js";
 import createComment from "./comments/createcomment.controller.js";
 import editComment from "./comments/editComment.controller.js";
 import deleteComment from "./comments/deleteComment.controller.js";
 import getComments from "./comments/getComments.controller.js";
+import modifyPostController from "./posts/modifyPost.controller.js";
 export default {
     sign,
     signUpController,
@@ -34,5 +35,6 @@ export default {
     createComment,
     editComment,
     deleteComment,
-    getComments
+    getComments,
+    modifyPostController
 }
