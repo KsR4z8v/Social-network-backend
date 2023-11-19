@@ -1,6 +1,7 @@
 
 import models from '../../database/models/index.js'
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
+import formatUrlAvatar from '../../helpers/formatUrlAvatar.js';
 import dotenv from 'dotenv'
 dotenv.config()
 const { internalError } = responseTemplate

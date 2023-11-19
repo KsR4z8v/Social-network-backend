@@ -1,14 +1,14 @@
-import modelo from '../../database/models/index.js'
+import models from '../../database/models/index.js'
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 const { internalError } = responseTemplate
 
-const createCommentController = async (req,resp)=>{
-    try{
+const createCommentController = async (req, resp) => {
+    try {
         const id_post = req.params.id_post;
-        const id_usuario = req.id_user;
-        const texto = req.body.text;
+        const id_user = req.id_user;
+        const text = req.body.text;
 
-        const user_found = await modelo.userModels.getUser({ id_usuario }, ['state_account', 'permission'])
+        const user_found = await models.userModels.getUser({ id_user }, ['state_account', 'permission'])
         if (!user_found.state_account) {
             return resp.status(404).json(accountDeactivated())
         }
@@ -16,10 +16,11 @@ const createCommentController = async (req,resp)=>{
             return resp.status(403).json(accountBanned())
         }
 
-        await modelo.interactionsModels.addComment({ id_post : id_post , id_user : id_usuario, date : new Date() , text : texto , state_comment : true});
+        await models.interactionsModels.addComment({ id_post, id_user, date_created: new Date(), text });
         return resp.status(201).json({ message: 'Comentario creado exitosamente.' });
-    }catch(err){
-        return resp.responseTemplate(internalError());
+    } catch (err) {
+        console.log(err);
+        return resp.status(500).json(internalError());
     }
 }
 
