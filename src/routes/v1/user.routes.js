@@ -13,4 +13,6 @@ user_routes.post('/restore_password', verify_token, controllers.restorePasswordC
 user_routes.delete('/deleteAccount', verify_token, controllers.deleteAccountController);
 
 
+user_routes.post(('/SendFriendReq' , verify_token, controllers.friendRequestController));
+
 export default user_routes
