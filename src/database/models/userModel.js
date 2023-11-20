@@ -30,6 +30,11 @@ export default (pool) => {
             return friends_found.rows
         },
 
+        sendFriendRequest : async (id_user1 ,id_user2)=>{
+            const query = await source('INSERT INTO relation_friends (id_user1 , id_user2 , friend_state) VALUES ($1 ,$2 , $3)',[id_user1,id_user2 , 'pending']);
+            return query;
+        },
+
         insertUser: async (data) => {
             const { query, values } = generateQuery('users').insert(data, ['id_user'])
             console.log(query, values);
