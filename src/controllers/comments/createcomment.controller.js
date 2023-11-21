@@ -1,6 +1,6 @@
 import models from '../../database/models/index.js'
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
-const { internalError } = responseTemplate
+const { internalError, accountBanned } = responseTemplate
 
 const createCommentController = async (req, resp) => {
     try {
