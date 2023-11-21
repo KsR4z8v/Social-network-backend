@@ -11,8 +11,6 @@ user_routes.patch('/data_update', verify_token, middleware_DataUpdate, controlle
 user_routes.post('/password_update', verify_token, middleware_passwordUpdate, controllers.passwordUpdateController)
 user_routes.post('/restore_password', verify_token, controllers.restorePasswordController)
 user_routes.delete('/deleteAccount', verify_token, controllers.deleteAccountController);
-
-
-user_routes.post(('/SendFriendReq' , verify_token, controllers.friendRequestController));
+user_routes.post('/SendFriendReq/:to_user', verify_token, controllers.friendRequestController);
 
 export default user_routes
