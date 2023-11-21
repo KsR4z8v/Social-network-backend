@@ -18,8 +18,8 @@ const getInfoUserController = async (req, resp) => {
         if (!resp_db.state_account) {
             return resp.status(404).json(accountDeactivated(req.query.view_foreign ? 'Esta cuenta se encuentra desactivada' : undefined))
         }
-        //obtengo los amigos del user
-        const friends_found = await models.userModels.getRelationFriendsOfUser(resp_db.id_user)
+        //obtengo los amigos del usuario
+        const friends_found = await models.userModels.getRelationFriendsOfUser(resp_db.id_user, req.query.view_foreign !== undefined)
         resp_db.friends = filterFriend(resp_db.id_user, friends_found)
         formatUrlAvatar([resp_db])
         resp.status(200).json(resp_db)
