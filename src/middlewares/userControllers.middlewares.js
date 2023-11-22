@@ -3,8 +3,8 @@ import responseTemplates from "../handlersResponses/responseTemplates.js"
 const { invalidBodyKeys, invalidDateFormat, invalidFormatPassword, invalidEmailFormat } = responseTemplates
 import { validateDateToRegister } from "../helpers/dateFunctions.js"
 export const middleware_Sign = (req, resp, next) => {
-    const { email, password } = req.body
-    if (!email || !password) {
+    const { user, password } = req.body
+    if (!user || !password) {
         return resp.status(400).json(invalidBodyKeys())
     }
     next()
