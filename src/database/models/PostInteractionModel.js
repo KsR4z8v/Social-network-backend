@@ -41,7 +41,8 @@ export default (pool) => {
                             JOIN posts p using(id_post) 
                             JOIN users u using(id_user)
                             JOIN account_settings acs using(id_user)
-                            WHERE  acs.state_account = TRUE AND c.state_comment = TRUE AND p.state_post = TRUE AND p.id_post = $1`
+                            WHERE  acs.state_account = TRUE AND c.state_comment = TRUE AND p.state_post = TRUE AND p.id_post = $1
+                            order by c.date_created desc`
             const comments = await source(query, [id_post]);
             return comments.rows;
         },
