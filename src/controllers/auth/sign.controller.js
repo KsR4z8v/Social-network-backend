@@ -12,9 +12,9 @@ const { internalError, userNotFound, accountDeactivated, passwordIncorrect } = r
 const { userModels } = models
 
 const sign = async (req, resp) => {
-    const { email, password } = req.body;
+    const { user, password } = req.body;
     try {
-        const user_found = await userModels.getUser({ email }, ['id_user', 'state_account', 'password', 'is_verified', 'fullname', 'email'])
+        const user_found = await userModels.getUser({ email: user, username: user }, ['id_user', 'state_account', 'password', 'is_verified', 'fullname', 'email'])
         console.log(user_found);
         if (!user_found) {
             return resp.status(404).json(userNotFound())
