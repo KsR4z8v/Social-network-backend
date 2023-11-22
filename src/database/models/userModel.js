@@ -44,6 +44,10 @@ export default (pool) => {
             const resp_db = await source(query, values)
             return resp_db.rows[0]
         },
+        deleteFriend: async(id_relation) => {
+            const resp_db = await source ('DELETE from relation_friends WHERE id_relation=$1', [id_relation])
+            return resp_db
+        },
         insertUser: async (data) => {
             const { query, values } = generateQuery('users').insert(data, ['id_user'])
             console.log(query, values);
