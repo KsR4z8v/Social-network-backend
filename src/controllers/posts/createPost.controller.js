@@ -28,14 +28,19 @@ const createPostController = async (req, resp) => {
             return resp.status(403).json(insufficientPermits('No tienes suficientes permisos para crear una publicacion'))
         }
 
-        let url_media_inserted = media ? await upload_Media(media, process.env.MEDIA_FOLDER_DEST) : undefined //insert images on image kit
+        let url_media_inserted = media ? await upload_Media(media, process.env.MEDIA_FOLDER_DEST) : undefined; //insert images on image kit
 
-        backOff(async () => {
-            const post_inserted = await postModels.insertPost({ id_author: id_user, text, date_upload: new Date() })
-            if (url_media_inserted) {
-                await postModels.insertMedia(post_inserted.id_post, url_media_inserted)
-            }
-        }, { increment: 'exp' })
+        (async () => {
+            const post_inserted = await backOff(async () => {
+                return await postModels.insertPost({ id_author: id_user, text, date_upload: new Date() })
+            }, { increment: 'exp' })
+            // console.log(post_inserted);
+            backOff(async () => {
+                if (url_media_inserted) {
+                    await postModels.insertMedia(post_inserted.id_post, url_media_inserted)
+                }
+            }, { increment: 'exp' })
+        })()
 
         resp.sendStatus(204)
     } catch (e) {
