@@ -1,6 +1,7 @@
 import models from '../../database/models/index.js';
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
-
+import backOff from '../../helpers/backOff.js';
+import FailureToLoadMedia from '../../exceptions/FailureToLoadMedia.js';
 import { upload_Media, delete_Media } from '../../services/imageKit.service.js';
 const { internalError, userNotFound } = responseTemplate
 
@@ -20,22 +21,23 @@ const avatarUpdateController = async (req, resp) => {
         const id_file = url_parts.length === 2 ? url_parts.pop() : undefined
 
         if (id_file) {
-            await delete_Media([id_file])
+            delete_Media([id_file])
         }
 
         const meta_data = await upload_Media([avatar_file], process.env.AVATARS_FOLDER_DEST)
-
-        if (meta_data.length === 0) {
-            return resp.status(502).json(internalError())
-        }
-        const resp_db = await models.userModels.updateDataUserById(id_user, {
-            url_avatar: meta_data[0].url_media + '*key:*' + meta_data[0].id_kit
-        })
-
-        return resp.status(201).json({ message: 'OK' })
-
-    } catch (error) {
-        console.log(error);
+        backOff(async () => {
+            await models.userModels.updateDataUserById(id_user, {
+                url_avatar: meta_data[0].url_media + '*key:*' + meta_data[0].id_kit
+            })
+        },
+            {
+                increment: 'exp'
+            }
+        )
+        return resp.sendStatus(204)
+    } catch (e) {
+        console.log(e);
+        if (e instanceof FailureToLoadMedia) return resp.status(e.httpCode).json(internalError(e.message))
         resp.status(500).json(internalError())
 
     }
