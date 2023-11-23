@@ -40,7 +40,7 @@ const sign = async (req, resp) => {
                 }
             })
         }
-        const token = jwt.sign({ id_user: user_found.id_user }, process.env.KEY_SECRET_JWT, { expiresIn: '6h' })
+        const token = jwt.sign({ id_user: user_found.id_user }, process.env.KEY_SECRET_JWT, { expiresIn: '8h' })
         resp.cookie('tkn', token)
 
         return resp.status(200).json({

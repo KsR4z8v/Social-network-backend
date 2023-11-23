@@ -22,7 +22,7 @@ const passwordUpdateController = async (req, resp) => {
 
         if (await bcrypt.compare(old_password, password_new_hash)) {
             return resp.status(411).json({
-                message: 'son iguales'
+                message: 'Las contraseñas son iguales'
             })
         }
         await models.userModels.updateDataUserById(id_user, { password: password_new_hash });

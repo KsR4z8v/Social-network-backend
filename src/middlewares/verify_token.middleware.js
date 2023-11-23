@@ -1,4 +1,6 @@
 import jwt from 'jsonwebtoken'
+import responseTemplates from '../handlersResponses/responseTemplates.js';
+const { internalError } = responseTemplates
 const verify_token = (req, resp, next) => {
 
     try {
@@ -15,10 +17,10 @@ const verify_token = (req, resp, next) => {
         req.id_user = data_tkn.id_user
         req.authorization = data_tkn?.authorization
         next()
-    } catch (error) {
-        console.log(error);
-        return resp.status(403).json({ message: 'Token is invalid' })
-
+    } catch (e) {
+        if (e instanceof jwt.TokenExpiredError) return resp.status(403).json({ message: 'Token has expired' })
+        if (e instanceof jwt.JsonWebTokenError) return resp.status(403).json({ message: 'Token is invalid' })
+        return resp.status(500).json(internalError())
     }
 }
 
