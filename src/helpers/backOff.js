@@ -24,8 +24,7 @@ const backOff = async (totry, options = { increment: '1s' }, limit = undefined,)
 
     while (true) {
         try {
-            await totry();
-            return "Ok";
+            return await totry();
         } catch (e) {
             console.log("Reintenta en...", delay, "ms", iteration, 'ERROR', e);
             await sleep(delay);
