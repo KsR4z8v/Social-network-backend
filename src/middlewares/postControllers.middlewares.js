@@ -1,6 +1,6 @@
 export const middleware_CreatePost = async (req, resp, next) => {
     const size = parseInt(req.headers['content-length'])
-    console.log(size);
+    //console.log('TAMAÑO DEL POST', size);
     if (size > 3000000) {
         return resp.status(413).json({ message: 'El contenido supera las 3Mb' })
     }
