@@ -36,23 +36,20 @@ export default (pool) => {
             const posts_found = await source(query)
             return posts_found.rows
         },
-        insertPost: async (postData, media) => {
+        insertPost: async (postData) => {
             const { query, values } = generateQuery('posts').insert(postData, ['id_post'])
-            console.log(query, values);
-            const post_insert = await source(query, values)//INSERT POST
-            if (media) {
-                //build query to insert all media
-                const id_post_insert = post_insert.rows[0].id_post
-                let values_to_insert = []
-                const fields = ['id_post', ...Object.keys(media[0])]
-                for (let object of media) {
-                    const values = Object.values(object)
-                    values_to_insert.push(`(${id_post_insert},'${values.join("','")}')`)
-                }
-                let query_media = `INSERT INTO media_post (${fields.join(', ')}) VALUES ${values_to_insert.join(',')}`
-                await source(query_media)//INSERT MEDIA
+            const post_inserted = await source(query, values)//INSERT POST
+            return post_inserted.rows[0]
+        },
+        insertMedia: async (id_post, media) => {
+            let values_to_insert = []
+            const fields = ['id_post', ...Object.keys(media[0])]
+            for (let object of media) {
+                const values = Object.values(object)
+                values_to_insert.push(`(${id_post},'${values.join("','")}')`)
             }
-            return post_insert.rows[0]
+            let query_media = `INSERT INTO media_post (${fields.join(', ')}) VALUES ${values_to_insert.join(',')}`
+            await source(query_media)//INSERT MEDIA
         },
         updateDataPostById: async (id_post, data) => {
             const { query, values } = generateQuery('posts').update({ id_post }, data, ['id_post'])
