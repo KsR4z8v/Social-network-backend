@@ -22,6 +22,7 @@ import friendRequestController from "./user/relationships/friendRequest.controll
 import deleteRelationController from "./user/relationships/deleteRelation.controller.js"
 import logoutController from "./auth/logout.controller.js";
 import getLikesPostController from "./posts/getLikesPost.controller.js";
+import reportPostController from "./posts/reportPost.controller.js";
 export default {
     sign,
     logoutController,
@@ -45,6 +46,6 @@ export default {
     modifyPostController,
     friendRequestController,
     deleteRelationController,
-    logicDeletePostController,
-    getLikesPostController
+    getLikesPostController,
+    reportPostController
 }

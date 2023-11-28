@@ -63,6 +63,11 @@ export default (pools) => {
             const resp_db = await dbConnectionManagement(pools, query, [id_post])
             return resp_db.rows[0]
         },
+        insertReport: async (reportData) => {
+            const { query, values } = generateQuery('reports').insert(reportData, ['id_report']);
+            const report_inserted = await source(query, values);
+            return report_inserted.rows[0]
+        },
         insertPost: async (postData) => {
             const { query, values } = generateQuery('posts').insert(postData, ['id_post'])
             const post_inserted = await dbConnectionManagement(pools, query, values, false)//INSERT POST
