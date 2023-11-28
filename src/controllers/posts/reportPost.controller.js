@@ -8,7 +8,7 @@ const reportPostController = async (req, res) => {
         const id_user = req.id_user;
         const reason = req.body.reason;
         
-        const post = models.postModels.getPost(id_post);
+        const post = await models.postModels.getPost(id_post);
         
         if(!post || post.state_post === false){
             return res.status(404).json({message : 'la publicacion no existe'});
