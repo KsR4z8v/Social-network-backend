@@ -9,5 +9,5 @@ post_routes.post('/createPost', verify_token, middleware_CreatePost, controllers
 post_routes.get('/getPosts', verify_token, controllers.getPostsController)
 post_routes.put('/like/:id_post', verify_token, controllers.likePostController);
 post_routes.post('/modify_post/:id_post', verify_token, controllers.modifyPostController)
-
+post_routes.post('/report/:id_post', verify_token ,controllers.reportPostController );
 export default post_routes
