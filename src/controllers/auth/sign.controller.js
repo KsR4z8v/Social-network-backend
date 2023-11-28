@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken'
 import codeGenerator from '../../helpers/code_generator.js';
 import sendEmail from "../../services/sendEmailGoogle.service.js";
 import VerifyCodeRedisService from '../../database/redis/VerifyCodeRedisService.js';
+import config from '../../configs/config.js';
 const { internalError, userNotFound, accountDeactivated, passwordIncorrect } = responseTemplate
 const { userModels } = models
 
@@ -15,7 +16,7 @@ const sign = async (req, resp) => {
     const { user, password } = req.body;
     try {
         const user_found = await userModels.getUser({ email: user, username: user }, ['id_user', 'state_account', 'password', 'is_verified', 'fullname', 'email'])
-        console.log(user_found);
+        // console.log(user_found);
         if (!user_found) {
             return resp.status(404).json(userNotFound())
         }
@@ -40,19 +41,17 @@ const sign = async (req, resp) => {
                 }
             })
         }
-        const token = jwt.sign({ id_user: user_found.id_user }, process.env.KEY_SECRET_JWT, { expiresIn: '8h' })
-        resp.cookie('tkn', token)
-
+        const token = jwt.sign({ id_user: user_found.id_user }, process.env.KEY_SECRET_JWT, config.config_token)
+        resp.cookie('tkn', token, config.config_cookie)
         return resp.status(200).json({
-            tkn: token,
             data: {
                 id_user: user_found.id_user,
                 username: user_found.username,
                 email: user_found.email,
             }
         })
-    } catch (error) {
-        console.log(error);
+    } catch (e) {
+        console.log(e);
         resp.status(500).json(internalError())
     }
 }

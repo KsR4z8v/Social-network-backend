@@ -9,18 +9,18 @@ const { postModels } = models
 
 const getPostsController = async (req, resp) => {
     try {
-        let posts = []
-        console.log(req.query);
+        const { id_user } = req
+        const { by_user, cursorIdPost, querySearch } = req.query
+        // console.log(parseInt(by_user) === id_user);
 
-        if (Object.keys(req.query).length === 0) {
-            posts = await postModels.getPosts()
-        }
-        if (req.query.self_user) {
-            posts = await postModels.getPosts(parseInt(req.query.self_user), true)
-        }
-        if (req.query.by_user) {
-            posts = await postModels.getPosts(parseInt(req.query.by_user), false)
-        }
+        //?console.log({ by_user, cursorIdPost, querySearch });
+
+        let posts = await postModels.getPosts({
+            id_user: parseInt(by_user),
+            id_post_cursor: parseInt(cursorIdPost),
+            querySearch
+        },
+            parseInt(by_user) === id_user)
 
         posts = posts.map(p => {
             const aux = p
@@ -31,8 +31,8 @@ const getPostsController = async (req, resp) => {
         resp.status(200).json({
             posts
         })
-    } catch (error) {
-        console.log(error);
+    } catch (e) {
+        console.log(e);
         resp.status(500).json(internalError())
     }
 }

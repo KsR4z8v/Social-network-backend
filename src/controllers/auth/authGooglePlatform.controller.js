@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import encryptPassword from '../../helpers/encrypt.js'
 import { generateDateToRegister } from '../../helpers/dateFunctions.js';
 import TokenGoogleInvalid from "../../exceptions/TokenGoogleInvalid.exception.js";
+import config from "../../configs/config.js";
 const authGooglePlatformController = async (req, resp) => {
     try {
         const { credentials } = req.body
@@ -37,13 +38,13 @@ const authGooglePlatformController = async (req, resp) => {
         if (!user_found?.state_account) {
             return resp.status(403).json(accountDeactivated())
         }
-        const tkn = jwt.sign({ id_user }, process.env.KEY_SECRET_JWT)
+        const tkn = jwt.sign({ id_user }, process.env.KEY_SECRET_JWT, config.config_token)
+        resp.cookie('tkn', tkn, config.config_cookie)
+        resp.status(200).json({ message: 'OK' })
 
-        resp.cookie('tkn', tkn)
-        resp.status(200).json({ tkn, message: 'OK' })
-    } catch (error) {
-        console.log(error);
-        if (error instanceof TokenGoogleInvalid) return resp.status(error.httpCode).json({ message: error.message })
+    } catch (e) {
+        console.log(e);
+        if (e instanceof TokenGoogleInvalid) return resp.status(e.httpCode).json({ message: e.message })
         resp.status(500).json(internalError())
     }
 }

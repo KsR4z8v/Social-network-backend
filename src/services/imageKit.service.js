@@ -36,6 +36,6 @@ export const delete_Media = async (id_images) => {
         await backOff(async () => {
             console.log('Eliminando...', id_images[i]);
             await imagekit.deleteFile(id_images[i])
-        }, { increment: 'sec' })
+        }, { increment: 'sec' }, 10)
     }
 }

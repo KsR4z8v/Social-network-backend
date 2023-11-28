@@ -1,11 +1,10 @@
-
+import colors from 'colors'
+colors.enable()
 const logger = (req, res, next) => {
     const pet = ` IP: ${req.ip}  METHOD:${req.method}  ROUTE: ${req.url}`;
     const fecha = new Date().toISOString().split("T")[0];
     const hora = new Date().toLocaleTimeString().split(" ")[0];
-
     if (process.env.logger) {
-        require("colors");
         fs.appendFile(
             `./logs/historyLogs_${fecha}.txt`,
             `- ${hora} - ${pet}\n`
@@ -16,7 +15,7 @@ const logger = (req, res, next) => {
             );
         });
     } else {
-        console.log(` IP: ${req.ip}  METHOD:${req.method}  ROUTE: ${req.url}`);
+        console.log(` IP: ${req.ip.green}  METHOD: ${req.method.red}  ROUTE: ${req.url.blue}`.yellow);
     }
     next();
 };
