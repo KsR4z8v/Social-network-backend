@@ -19,6 +19,7 @@ import getComments from "./comments/getComments.controller.js";
 import modifyPostController from "./posts/modifyPost.controller.js";
 import friendRequestController from "./user/relationships/friendRequest.controller.js";
 import deleteFriendController from "./user/relationships/deleteFriend.controller.js"
+import reportPostController from "./posts/reportPost.controller.js";
 export default {
     sign,
     signUpController,
@@ -40,5 +41,6 @@ export default {
     getComments,
     modifyPostController,
     friendRequestController,
-    deleteFriendController
+    deleteFriendController,
+    reportPostController
 }

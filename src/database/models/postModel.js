@@ -36,6 +36,17 @@ export default (pool) => {
             const posts_found = await source(query)
             return posts_found.rows
         },
+        getPost: async (id_post)=>{
+            const { query, values } = generateQuery('posts').select({id_post : id_post}, ['*'], []);
+            const post = await source(query,values);
+            return post.rows[0]; 
+        },
+        
+        insertReport: async(reportData)=>{
+            const { query, values } = generateQuery('reports').insert(reportData, ['id_report']);
+            const report_inserted = await source(query , values);
+            return report_inserted.rows[0]
+        },
         insertPost: async (postData) => {
             const { query, values } = generateQuery('posts').insert(postData, ['id_post'])
             const post_inserted = await source(query, values)//INSERT POST
