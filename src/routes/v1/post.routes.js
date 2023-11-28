@@ -5,9 +5,11 @@ import { middleware_CreatePost } from '../../middlewares/postControllers.middlew
 const post_routes = Router()
 
 // controllers.createPostController
-post_routes.post('/createPost', verify_token, middleware_CreatePost, controllers.createPostController)
-post_routes.get('/getPosts', verify_token, controllers.getPostsController)
-post_routes.put('/like/:id_post', verify_token, controllers.likePostController);
-post_routes.post('/modify_post/:id_post', verify_token, controllers.modifyPostController)
+post_routes.put('/', verify_token, middleware_CreatePost, controllers.createPostController);
+post_routes.delete('/:id_post', verify_token, controllers.logicDeletePostController);
+post_routes.get('/', verify_token, controllers.getPostsController);
+post_routes.get('/:id_post/likes', verify_token, controllers.getLikesPostController);
+post_routes.put('/:id_post/like', verify_token, controllers.likePostController);
+post_routes.patch('/:id_post', verify_token, controllers.modifyPostController);
 
 export default post_routes

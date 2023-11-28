@@ -19,8 +19,8 @@ const friendRequest = async (req, res) => {
         if (request_friend.user_requesting !== id_user) await models.userModels.acceptRequestFriend(request_friend.id_relation)
 
         return res.status(200).json({ message: 'La relacion ha sido creada con exito' })
-    } catch (err) {
-        console.log(err);
+    } catch (e) {
+        console.log(e);
         return res.status(500).json(internalError());
     }
 

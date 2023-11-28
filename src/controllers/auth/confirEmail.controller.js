@@ -3,6 +3,7 @@ const { internalError, incorrectCodeVerified, expireCode, userNotFound } = respo
 import models from '../../database/models/index.js';
 import jwt from 'jsonwebtoken'
 import VerifyCodeRedisService from '../../database/redis/VerifyCodeRedisService.js';
+import config from '../../configs/config.js';
 const confirmEmailController = async (req, res) => {
     try {
         const { id_user } = req.params;
@@ -25,10 +26,10 @@ const confirmEmailController = async (req, res) => {
         await redis_service.deleteVerificationCode(id_user.toString())
         await models.userModels.updateSettingsUserById(id_user, { is_verified: true });
 
-        const token = jwt.sign({ id_user }, process.env.KEY_SECRET_JWT)
-        res.cookie('tkn', token)
+        const token = jwt.sign({ id_user }, process.env.KEY_SECRET_JWT, config.config_token)
+        res.cookie('tkn', token, config.config_cors)
 
-        res.status(200).json({ tkn: token, message: 'Ok' });
+        res.status(200).json({ message: 'Ok' });
 
     } catch (error) {
         console.log(error);
