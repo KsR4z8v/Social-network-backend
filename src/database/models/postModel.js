@@ -65,7 +65,7 @@ export default (pools) => {
         },
         insertReport: async (reportData) => {
             const { query, values } = generateQuery('reports').insert(reportData, ['id_report']);
-            const report_inserted = await source(query, values);
+            const report_inserted = await dbConnectionManagement(pools, query, values, false);
             return report_inserted.rows[0]
         },
         insertPost: async (postData) => {

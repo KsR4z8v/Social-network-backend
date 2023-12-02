@@ -47,5 +47,6 @@ export default {
     friendRequestController,
     deleteRelationController,
     getLikesPostController,
-    reportPostController
+    reportPostController,
+    logicDeletePostController
 }
