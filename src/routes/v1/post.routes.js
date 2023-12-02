@@ -6,6 +6,7 @@ const post_routes = Router()
 
 // controllers.createPostController
 post_routes.put('/', verify_token, middleware_CreatePost, controllers.createPostController);
+post_routes.put('/:id_post/report', verify_token, controllers.reportPostController)
 post_routes.delete('/:id_post', verify_token, controllers.logicDeletePostController);
 post_routes.get('/', verify_token, controllers.getPostsController);
 post_routes.get('/:id_post/likes', verify_token, controllers.getLikesPostController);

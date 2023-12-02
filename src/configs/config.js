@@ -13,9 +13,9 @@ export default {
     },
     config_cookie: {
         httpOnly: true,
-        secure: true,
+        secure: false,
         signed: false,
-        sameSite: 'Strict',
+        //        sameSite: 'Strict',
         expires: new Date(Date.now() + 86400000),
     },
     config_token: {
