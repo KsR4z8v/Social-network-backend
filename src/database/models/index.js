@@ -9,7 +9,7 @@ import poolMain from "../../configs/db_connection_server.js";
 import poolLocal from "../../configs/db_connection_local.js";
 
 export default {
-    userModels: userModel([poolMain, poolLocal]),
-    postModels: postModel([poolMain, poolLocal]),
-    interactionsModels: interactionsModels([poolMain, poolLocal])
+    userModels: userModel([poolMain]),
+    postModels: postModel([poolMain]),
+    interactionsModels: interactionsModels([poolMain])
 }
