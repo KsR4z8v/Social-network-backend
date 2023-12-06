@@ -11,11 +11,12 @@ export default {
         privateKey: process.env.PRIVATE_KEY_IMAGEKIT,
         urlEndpoint: process.env.URL_ENDPOINT_IMAGEKIT,
     },
+    logger: true,
     config_cookie: {
         httpOnly: true,
         secure: false,
         signed: false,
-        //        sameSite: 'Strict',
+        //sameSite: 'Strict',
         expires: new Date(Date.now() + 86400000),
     },
     config_token: {
