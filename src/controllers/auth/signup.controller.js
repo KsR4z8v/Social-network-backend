@@ -4,6 +4,7 @@ import codeGenerator from '../../helpers/code_generator.js';
 import responseTemplate from '../../handlersResponses/responseTemplates.js';
 import encryptPassword from '../../helpers/encrypt.js'
 import models from '../../database/models/index.js'
+import VerifyCodeRedisService from '../../database/redis/VerifyCodeRedisService.js';
 import sendEmail from '../../services/sendEmailGoogle.service.js'
 const { internalError, dataAlreadyExist } = responseTemplate
 
@@ -21,7 +22,11 @@ const signUpController = async (req, resp) => {
         const date_created = new Date();
         const password_encrypt = await encryptPassword(password)
 
-        const response_db = await models.userModels.insertUser({ username, password: password_encrypt, email, fullname, phone_number, date_created, date_born, verify_code: verifyCode, url_avatar: process.env.AVATAR_DEFAULT })
+
+        const response_db = await models.userModels.insertUser({ username, password: password_encrypt, email, fullname, phone_number, date_created, date_born, url_avatar: process.env.AVATAR_DEFAULT })
+        const serviceRedis = new VerifyCodeRedisService()
+        await serviceRedis.setVerificationCode(response_db.id_user.toString(), verifyCode)
+
         sendEmail(email, fullname.split(' ')[0]).verificationEmail(verifyCode)
         resp.status(200).json({ id_user: response_db.id_user, message: 'OK' })
 

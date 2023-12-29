@@ -6,7 +6,11 @@ const { internalError } = responseTemplate
 const logoutController = (req, res) => {
     try {
         res.clearCookie('tkn')
-        //TODO eliminar sesion..
+        req.session.destroy(function (err) {
+            if (err) {
+                console.log(err);
+            }
+        })
         res.sendStatus(204)
     } catch (e) {
         console.log(e);

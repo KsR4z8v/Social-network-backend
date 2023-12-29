@@ -42,7 +42,9 @@ const sign = async (req, resp) => {
             })
         }
         const token = jwt.sign({ id_user: user_found.id_user }, process.env.KEY_SECRET_JWT, config.config_token)
-        resp.cookie('tkn', token, config.config_cookie)
+        //resp.cookie('tkn', token, config.config_cookie)
+        req.session.id_user = user_found.id_user
+        req.session.tkn = token
         return resp.status(200).json({
             data: {
                 id_user: user_found.id_user,
@@ -50,6 +52,7 @@ const sign = async (req, resp) => {
                 email: user_found.email,
             }
         })
+
     } catch (e) {
         console.log(e);
         resp.status(500).json(internalError())
