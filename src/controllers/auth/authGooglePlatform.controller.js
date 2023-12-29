@@ -38,8 +38,10 @@ const authGooglePlatformController = async (req, resp) => {
         if (!user_found?.state_account) {
             return resp.status(403).json(accountDeactivated())
         }
-        const tkn = jwt.sign({ id_user }, process.env.KEY_SECRET_JWT, config.config_token)
-        resp.cookie('tkn', tkn, config.config_cookie)
+        const token = jwt.sign({ id_user }, process.env.KEY_SECRET_JWT, config.config_token)
+        //resp.cookie('tkn', tkn, config.config_cookie)
+        req.session.id_user = user_found.id_user
+        req.session.tkn = token
         resp.status(200).json({ message: 'OK' })
 
     } catch (e) {

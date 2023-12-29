@@ -1,10 +1,14 @@
 import jwt from 'jsonwebtoken'
 import responseTemplates from '../handlersResponses/responseTemplates.js';
+
 const { internalError } = responseTemplates
 const verify_token = (req, resp, next) => {
 
     try {
-        const { tkn } = req.cookies
+
+        const { session, cookies, headers } = req
+        const tkn = cookies.tkn || session.tkn || headers.auth.split('Bearer token:')[1]
+        //console.log(req.session);
         if (!tkn) {
             return resp.status(401).json({ message: 'token not found' })
         }
