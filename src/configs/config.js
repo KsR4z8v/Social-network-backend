@@ -3,7 +3,7 @@ dotenv.config()
 
 export default {
     config_cors: {
-        origin: ["https://snapwiredv.onrender.com", 'https://nt4mmhp7-3000.use2.devtunnels.ms', 'http://localhost'],
+        origin: ["https://snapwire.onrender.com", 'https://nt4mmhp7-3000.use2.devtunnels.ms', 'http://localhost'],
         credentials: true,
     },
     IMAGE_KIT_CONFIG: {
@@ -13,6 +13,11 @@ export default {
     },
     logger: true,
     config_cookie: {
+        path: '/',
+        domain: 'snapwire.onrender.com',
+        secure: false,
+        httpOnly: true,
+        sameSite: 'None',
         expires: new Date(Date.now() + 86400000),
     },
     config_token: {

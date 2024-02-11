@@ -129,6 +129,14 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# env
+
+.env
+.env.local
+
 #docker
 dockerfile
 .dockerignore
+
+#files
+db_connection_local.js
