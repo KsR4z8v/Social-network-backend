@@ -17,11 +17,8 @@ export default class ConfirmEmailController {
     try {
       const { id_user } = req.params;
       const { entered_code } = req.body;
-      const user_found = await this.userRepository.find({ id_user });
+      const user_found = await this.userRepository.find(id_user);
 
-      if (!user_found) {
-        throw new UserNotExist(id_user);
-      }
       const redis_service = VerifyCodeRedisService.getInstance();
       const code_get = await redis_service.getVerificationCode(
         id_user.toString()

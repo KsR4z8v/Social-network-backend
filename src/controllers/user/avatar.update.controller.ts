@@ -16,11 +16,7 @@ export default class avatarUpdateController {
 
       const avatar: Express.Multer.File | undefined = req.file;
 
-      const user_found = await this.userRepository.find({ id_user });
-
-      if (!user_found) {
-        throw new UserNotExist();
-      }
+      const user_found = await this.userRepository.find(id_user);
 
       if (user_found.avatar.id_kit) {
         delete_Media([user_found.avatar.id_kit]);

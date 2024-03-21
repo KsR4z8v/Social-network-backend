@@ -24,20 +24,11 @@ export default class SignController {
   async run(req: Request, res: Response) {
     const { user, password } = req.body;
     try {
-      const user_found = await this.userRepository.find({
-        email: user,
-        username: user,
-        id_user: Types.ObjectId.isValid(user) ? user : undefined,
-      });
-
-      if (!user_found) {
-        throw new UserNotExist();
-      }
+      const user_found = await this.userRepository.find(user);
 
       if (!user_found.account_settings.state_account) {
         throw new AccountDeactivated();
       }
-
       if (!(await bcrypt.compare(password, user_found.password))) {
         throw new PasswordIncorrect();
       }

@@ -17,10 +17,8 @@ export default class CreateCommentController {
 
       const { text } = req.body;
 
-      const user_found = await this.userRepository.find({ id_user });
-      if (!user_found) {
-        throw new UserNotExist(id_user);
-      }
+      const user_found = await this.userRepository.find(id_user);
+
       if (!user_found.account_settings.state_account) {
         throw new AccountDeactivated();
       }
