@@ -1,17 +1,23 @@
 import { Request } from "express";
-import { Jwt, JwtPayload, decode } from "jsonwebtoken";
+import {
+  JsonWebTokenError,
+  Jwt,
+  JwtPayload,
+  TokenExpiredError,
+  decode,
+} from "jsonwebtoken";
 
 const getDataToken = (req: Request): Record<string, any> => {
   const auth: undefined | string = req.headers.authorization;
   if (!auth) {
-    throw new Error("token not found");
+    throw new JsonWebTokenError("");
   }
   const token: string = auth.split("Bearer ")[1];
   const data: Jwt | null = decode(token, {
     complete: true,
   });
   if (!data) {
-    throw new Error("Not data found");
+    throw new JsonWebTokenError("Token vacio");
   }
   return data;
 };
