@@ -17,13 +17,10 @@ export default class SendEmailController {
     try {
       const { type } = req.query;
 
-      const { id_user, email } = req.body;
+      const { email } = req.body;
 
-      const user_found = await this.userRepository.find({ id_user, email });
+      const user_found = await this.userRepository.find(email);
 
-      if (!user_found) {
-        throw new UserNotExist();
-      }
       if (!user_found.account_settings.state_account) {
         throw new AccountDeactivated();
       }

@@ -22,10 +22,7 @@ export default class CreatePostController {
       const media: any = req.files;
       const { text } = req.body;
 
-      const user_found = await this.userRepository.find({ id_user });
-      if (!user_found || user_found.doc_deleted) {
-        throw new UserNotExist();
-      }
+      const user_found = await this.userRepository.find(id_user);
 
       if (!user_found.account_settings.state_account) {
         throw new AccountDeactivated();

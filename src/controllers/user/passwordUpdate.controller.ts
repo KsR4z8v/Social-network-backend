@@ -16,11 +16,7 @@ export default class PasswordUpdateController {
       const { id_user } = req.params;
       const { old_password, new_password } = req.body;
 
-      const user_found = await this.userRepository.find({ id_user });
-
-      if (!user_found) {
-        throw new UserNotExist(id_user);
-      }
+      const user_found = await this.userRepository.find(id_user);
 
       if (!(await bcrypt.compare(old_password, user_found.password))) {
         throw new PasswordIncorrect();

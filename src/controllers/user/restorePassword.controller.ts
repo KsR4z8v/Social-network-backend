@@ -14,11 +14,7 @@ export default class RestorePasswordController {
       const { password } = req.body;
       const { id_user } = req.params;
 
-      const user_found = await this.userRepository.find({ id_user });
-
-      if (!user_found) {
-        throw new UserNotExist(id_user);
-      }
+      const user_found = await this.userRepository.find(id_user);
 
       const password_hash = await encryptPassword(password);
 
