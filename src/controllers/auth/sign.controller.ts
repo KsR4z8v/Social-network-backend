@@ -9,10 +9,8 @@ import VerifyCodeRedisService from "../../database/redis/VerifyCodeRedisService"
 import config from "../../configs/config";
 import MongoUserRepository from "../../database/repositories/MongoUserRepository";
 import ErrorHandler from "../../helpers/ErrorHandler";
-import UserNotExist from "../../exceptions/UserNotExist";
 import PasswordIncorrect from "../../exceptions/PasswordIncorrect";
 import AccountDeactivated from "../../exceptions/AccountDeactivated";
-import { Types } from "mongoose";
 
 export default class SignController {
   constructor(
