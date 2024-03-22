@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import codeGenerator from "../../helpers/code_generator";
-import encryptPassword from "../../helpers/encrypt";
+import { hashString } from "../../helpers/encrypt";
 import VerifyCodeRedisService from "../../database/redis/VerifyCodeRedisService";
 import sendEmail from "../../services/sendEmailGoogle.service";
 import MongoUserRepository from "../../database/repositories/MongoUserRepository";
@@ -19,17 +19,19 @@ export default class SignUpController {
       let { username, email, password, fullname, phone_number, date_born } =
         req.body;
 
-      const users_found = await this.userRepository.find({ username, email });
+      const user_found = await this.userRepository.exist({
+        email,
+        username,
+      });
 
-      if (users_found) {
+      if (user_found) {
         throw new DataAlreadyExist(
-          users_found.username === username ? "username" : "correo"
+          user_found.username === username ? "username" : "correo"
         );
       }
-
       const verifyCode = codeGenerator(4);
 
-      const password_encrypt = await encryptPassword(password);
+      const password_encrypt = await hashString(password);
 
       const insertedId = await this.userRepository.create(
         username,
