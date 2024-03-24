@@ -36,7 +36,7 @@ export const delete_Media = async (id_images: string[]) => {
         console.log("Eliminando...", id_images[i]);
         await imagekit.deleteFile(id_images[i]);
       },
-      { increment: "sec" },
+      "sec",
       10
     );
   }

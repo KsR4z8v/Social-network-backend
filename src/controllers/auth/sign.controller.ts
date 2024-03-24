@@ -1,16 +1,16 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
-dotenv.config();
 import jwt from "jsonwebtoken";
 import codeGenerator from "../../helpers/code_generator";
-import sendEmail from "../../services/sendEmailGoogle.service";
 import VerifyCodeRedisService from "../../database/redis/VerifyCodeRedisService";
 import config from "../../configs/config";
 import MongoUserRepository from "../../database/repositories/MongoUserRepository";
 import ErrorHandler from "../../helpers/ErrorHandler";
 import PasswordIncorrect from "../../exceptions/PasswordIncorrect";
 import AccountDeactivated from "../../exceptions/AccountDeactivated";
+import ApiGoogleEmailService from "../../services/sendEmailGoogle.service";
+dotenv.config();
 
 export default class SignController {
   constructor(
@@ -38,10 +38,11 @@ export default class SignController {
           user_found._id.toString(),
           verify_Code
         );
-        sendEmail(
+        ApiGoogleEmailService.getInstance().sendVerificationCode(
           user_found.email,
-          user_found.fullname?.split(" ")[0]
-        ).verificationEmail(verify_Code);
+          user_found.fullname,
+          verify_Code
+        );
         return res.status(200).json({
           state: "PENDING_TO_VERIFIED",
           data: {

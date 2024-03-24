@@ -1,7 +1,6 @@
 import MongoUserRepository from "../../database/repositories/MongoUserRepository";
-import UserNotExist from "../../exceptions/UserNotExist";
 import ErrorHandler from "../../helpers/ErrorHandler";
-import encryptPassword from "../../helpers/encrypt";
+import { hashString } from "../../helpers/hashString";
 import { Request, Response } from "express";
 
 export default class RestorePasswordController {
@@ -16,7 +15,7 @@ export default class RestorePasswordController {
 
       const user_found = await this.userRepository.find(id_user);
 
-      const password_hash = await encryptPassword(password);
+      const password_hash = await hashString(password);
 
       await this.userRepository.updateData(user_found.id_user, {
         password: password_hash,

@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import codeGenerator from "../../helpers/code_generator";
-import { hashString } from "../../helpers/encrypt";
+import { hashString } from "../../helpers/hashString";
 import VerifyCodeRedisService from "../../database/redis/VerifyCodeRedisService";
-import sendEmail from "../../services/sendEmailGoogle.service";
 import MongoUserRepository from "../../database/repositories/MongoUserRepository";
 import ErrorHandler from "../../helpers/ErrorHandler";
 import DataAlreadyExist from "../../exceptions/DataAlreadyExist";
+import ApiGoogleEmailService from "../../services/sendEmailGoogle.service";
 
 export default class SignUpController {
   constructor(
@@ -45,7 +45,11 @@ export default class SignUpController {
       const serviceRedis = VerifyCodeRedisService.getInstance();
       await serviceRedis.setVerificationCode(insertedId, verifyCode);
 
-      sendEmail(email, fullname.split(" ")[0]).verificationEmail(verifyCode);
+      ApiGoogleEmailService.getInstance().sendVerificationCode(
+        email,
+        username,
+        verifyCode
+      );
       res.status(200).json({ data: { id_user: insertedId }, state: "ok" });
     } catch (e) {
       this.errorHandler.run(req, res, e);
