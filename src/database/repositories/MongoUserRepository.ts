@@ -2,6 +2,7 @@ import { Connection, Types } from "mongoose";
 import UserSchema from "../schemasMongo/UserSchema";
 import PostSchema from "../schemasMongo/PostSchema";
 import UserNotExist from "../../exceptions/UserNotExist";
+import RequestNotExist from "../../exceptions/RequestNotExist";
 export default class MongoUserRepository {
   private userModel;
   private postModel;
@@ -25,24 +26,11 @@ export default class MongoUserRepository {
       username,
       email,
       fullname,
-      bio: " ",
       date_born,
       password,
       phone_number,
-      verified: false,
-      doc_deleted: false,
       avatar: {
         url: url_avatar,
-        id_kit: null,
-        format: null,
-      },
-      account_settings: {
-        state_account: true,
-        verified_email: false,
-      },
-      user_preferences: {
-        profileView: true,
-        receive_requests: true,
       },
     });
     const resp_db = await user_.save();
@@ -50,51 +38,54 @@ export default class MongoUserRepository {
     return resp_db._id.toString();
   }
 
-  async find(filters: Record<string, string>): Promise<any | null> {
-    const resp_db = await this.userModel
-      .findOne({
+  async find(
+    user: string,
+    onlyDataExtern: boolean = false,
+    id_ext?: string
+  ): Promise<Record<string, any>> {
+    let extraKeys: Record<string, any> = {
+      account_settings: 1,
+      phone_number: 1,
+      email: 1,
+      password: 1,
+      date_born: 1,
+    };
+    if (onlyDataExtern) {
+      extraKeys = {
+        friends: { $elemMatch: { user: id_ext } },
+        requests: { $elemMatch: { user: id_ext } },
+        my_requests_sent: { $elemMatch: { user: id_ext } },
+      };
+    }
+    const user_found = await this.userModel.findOne(
+      {
         $and: [
           {
             $or: [
-              { username: filters.username },
-              { email: filters.email },
-              { _id: filters.id_user },
+              { username: user },
+              { email: user },
+              { _id: Types.ObjectId.isValid(user) ? user : null },
             ],
           },
           {
             doc_deleted: false,
           },
         ],
-      })
-      .populate("friends.user", "avatar.url username")
-      .populate("requests.user", "avatar.url username")
-      .populate("posts")
-      .populate("my_requests_sent.user", "avatar.url username");
-    return resp_db;
-  }
-
-  async get(filters: Record<string, string>): Promise<any | null> {
-    const resp_db = await this.userModel
-      .findOne({
-        $and: [
-          {
-            $or: [
-              { username: filters.username },
-              { email: filters.email },
-              { _id: filters.id_user },
-            ],
-          },
-          {
-            doc_deleted: false,
-          },
-        ],
-      })
-      .populate("friends.user", "avatar.url username")
-      .populate("posts")
-      .select(
-        "_id username verified fullname avatar.url bio user_preferences.profileView user_preferences.receive_requests friends posts"
-      );
-    return resp_db;
+      },
+      {
+        "avatar.url": 1,
+        user_preferences: 1,
+        fullname: 1,
+        username: 1,
+        bio: 1,
+        verified: 1,
+        countPosts: { $size: "$posts" },
+        countFriends: { $size: "$friends" },
+        ...extraKeys,
+      }
+    );
+    if (!user_found) throw new UserNotExist(user);
+    return user_found;
   }
 
   async updateData(id_user: string, data: any): Promise<void> {
@@ -119,7 +110,7 @@ export default class MongoUserRepository {
       { avatar: data }
     );
     if (resp_db.modifiedCount === 0) {
-      throw new Error("No se pudo actualizar");
+      throw new UserNotExist(id_user);
     }
   }
   async updateSettings(id_user: string, data: any): Promise<void> {
@@ -187,7 +178,7 @@ export default class MongoUserRepository {
       }
 
       const res: Record<string, any> = {};
-      const f = user1.friends.find((r) => r.user.toString() === id_user2);
+      const f = user1.friends.find((f) => f.user.toString() === id_user2);
 
       if (f) {
         res["id_relation"] = f._id;
@@ -240,50 +231,38 @@ export default class MongoUserRepository {
 
     try {
       const user1 = await this.userModel
-        .findOne({
-          $and: [{ _id: id_user }, { doc_deleted: false }],
-        })
+        .findOne({ _id: id_user, doc_deleted: false })
         .select("requests my_requests_sent");
       if (!user1) {
         throw new UserNotExist(id_user);
       }
 
-      let id_user2;
+      const r_r = user1.requests.find((rr) => rr._id.toString() === id_request);
+      const r_s = user1.my_requests_sent.find(
+        (rs) => rs._id.toString() === id_request
+      );
 
-      if (user1.requests.some((r) => r._id.toString() === id_request)) {
-        const r = user1.requests.find((rs) => rs._id.toString() === id_request);
-        id_user2 = r.user;
-        user1.requests = user1.requests.filter((r) => r._id != id_request);
-      }
-      if (user1.my_requests_sent.some((r) => r._id.toString() === id_request)) {
-        const r = user1.my_requests_sent.find(
-          (rs) => rs._id.toString() === id_request
-        );
-        id_user2 = r.user;
-        user1.my_requests_sent = user1.my_requests_sent.filter(
-          (r) => r._id != id_request
-        );
+      const q_u1: Record<string, any> = {};
+      const q_u2: Record<string, any> = {};
+
+      if (r_r) {
+        q_u1.$pullAll = { requests: [r_r] };
+        q_u2.$pullAll = {
+          my_requests_sent: [{ user: id_user, _id: r_r._id }],
+        };
+      } else if (r_s) {
+        q_u1.$pullAll = { my_requests_sent: [r_s] };
+        q_u2.$pullAll = { requests: [{ user: id_user, _id: r_s._id }] };
+      } else {
+        throw new RequestNotExist(id_request);
       }
 
-      const user2 = await this.userModel
-        .findOne({
-          $and: [{ _id: id_user2 }, { doc_deleted: false }],
-        })
-        .select("requests my_requests_sent");
-
-      if (!user2) {
-        throw new UserNotExist();
-      }
-      if (user2.requests.some((r) => r._id.toString() === id_request)) {
-        user2.requests = user1.requests.filter((r) => r._id != id_request);
-      }
-      if (user2.my_requests_sent.some((r) => r._id.toString() === id_request)) {
-        user2.my_requests_sent = user1.my_requests_sent.filter(
-          (r) => r._id != id_request
-        );
-      }
-      await user1.save({ session });
-      await user2.save({ session });
+      await this.userModel.updateOne({ _id: id_user }, q_u1, { session });
+      await this.userModel.updateOne(
+        { $or: [{ _id: r_r?.user }, { _id: r_s?.user }] },
+        q_u2,
+        { session }
+      );
 
       await session.commitTransaction();
     } catch (e) {
@@ -334,5 +313,72 @@ export default class MongoUserRepository {
     } finally {
       await session.endSession();
     }
+  }
+
+  async getRelationFields(
+    id_user: string,
+    field: "friends" | "requests" | "my_requests_sent",
+    id_user_v: string,
+    page?: number
+  ): Promise<Record<string, any>> {
+    const projection: Record<any, any> = {};
+    projection[`${field}`] = { $slice: [-10 * (page ? page : 1), 10] };
+
+    const user = await this.userModel
+      .findOne(
+        {
+          _id: id_user,
+          doc_deleted: false,
+        },
+        projection
+      )
+      .select(field);
+
+    if (!user) {
+      throw new UserNotExist(id_user);
+    }
+
+    const result = this.userModel.find(
+      {
+        _id: { $in: user[field].map((f) => f.user) },
+      },
+      {
+        _id: 1,
+        username: 1,
+        "avatar.url": 1,
+        myfriend: { $in: [new Types.ObjectId(id_user_v), `$${field}.user`] },
+      }
+    );
+
+    return result;
+  }
+
+  async exist(
+    user: Record<string, string>
+  ): Promise<Record<string, any> | null> {
+    //*ok
+    const user_found = await this.userModel.findOne(
+      {
+        $and: [
+          {
+            $or: [
+              {
+                _id: Types.ObjectId.isValid(user.id_user) ? user.id_user : null,
+              },
+              { email: user.email },
+              { username: user.username },
+            ],
+          },
+          { doc_deleted: false },
+        ],
+      },
+      {
+        _id: 1,
+        email: 1,
+        username: 1,
+        account_settings: 1,
+      }
+    );
+    return user_found;
   }
 }
