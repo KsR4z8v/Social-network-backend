@@ -5,23 +5,23 @@ const PostSchema = new Schema(
     author: { type: Types.ObjectId, ref: "User" },
     text: { type: String },
     config: {
-      archived: Boolean,
-      deleted: Boolean,
-      private: Boolean,
-      deactive_comments: Boolean,
+      archived: { type: Boolean, default: false },
+      private: { type: Boolean, default: false },
+      comments_disabled: { type: Boolean, default: false },
     },
-
+    doc_deleted: { type: Boolean, default: false },
     media: [
       {
         url: String,
         id_kit: String,
+        format: { type: String, default: null },
       },
     ],
     comments: [
       {
         user: { type: Types.ObjectId, ref: "User" },
         createdAt: { type: Date },
-        edited: Boolean,
+        edited: { type: Boolean, default: false },
         likes: [
           {
             user: { type: Types.ObjectId, ref: "User" },
@@ -34,7 +34,7 @@ const PostSchema = new Schema(
     likes: [
       {
         user: { type: Types.ObjectId, ref: "User" },
-        createdAt: { type: Date },
+        createdAt: { type: Date, default: Date.now },
       },
     ],
   },
