@@ -5,7 +5,7 @@ export default {
   config_cors: {
     origin: [
       "https://snapwire.onrender.com",
-      "https://nt4mmhp7-3000.use2.devtunnels.ms",
+      "https://wz6lg1mk-3000.use.devtunnels.ms",
       "http://localhost:3000",
     ],
     credentials: true,
