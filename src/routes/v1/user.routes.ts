@@ -9,6 +9,8 @@ const {
   deleteAccountController,
   friendRequestController,
   deleteRelationController,
+  getFriendsController,
+  getRequestsController,
 } = controllers;
 import {
   middleware_DataUpdate,
@@ -22,9 +24,19 @@ const user_routes = Router();
 
 //User
 user_routes.get(
-  "/:id_user",
+  "/:user",
   verify_token,
   getInfoUserController.run.bind(getInfoUserController)
+);
+user_routes.get(
+  "/:user/friends",
+  verify_token,
+  getFriendsController.run.bind(getFriendsController)
+);
+user_routes.get(
+  "/:user/:type",
+  verify_token,
+  getRequestsController.run.bind(getRequestsController)
 );
 user_routes.patch(
   "/:id_user/avatar",
