@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
 import codeGenerator from "../../helpers/code_generator";
-import sendEmail from "../../services/sendEmailGoogle.service";
 import jwt from "jsonwebtoken";
 import VerifyCodeRedisService from "../../database/redis/VerifyCodeRedisService";
 import MongoUserRepository from "../../database/repositories/MongoUserRepository";
 import ErrorHandler from "../../helpers/ErrorHandler";
-import UserNotExist from "../../exceptions/UserNotExist";
 import AccountDeactivated from "../../exceptions/AccountDeactivated";
+import ApiGoogleEmailService from "../../services/sendEmailGoogle.service";
 
 export default class SendEmailController {
   constructor(
@@ -17,9 +16,9 @@ export default class SendEmailController {
     try {
       const { type } = req.query;
 
-      const { email } = req.body;
+      const { user } = req.body;
 
-      const user_found = await this.userRepository.find(email);
+      const user_found = await this.userRepository.find(user);
 
       if (!user_found.account_settings.state_account) {
         throw new AccountDeactivated();
@@ -32,22 +31,23 @@ export default class SendEmailController {
           user_found._id.toString(),
           verify_Code
         );
-        sendEmail(user_found.email, user_fullname).verificationEmail(
+        ApiGoogleEmailService.getInstance().sendVerificationCode(
+          user_found.email,
+          user_fullname,
           verify_Code
         );
       }
       if (type === "recoveryPassword") {
-        const authorization = jwt.sign(
-          { code: codeGenerator(10) },
-          process.env.RESTORE_KEY_PASSWORD || "secret",
-          { expiresIn: "10m" }
-        );
         const token = jwt.sign(
-          { id_user: user_found.id_user, authorization },
+          { id_user: user_found.id_user },
           process.env.KEY_SECRET_JWT || "secret",
           { expiresIn: "1h" }
         );
-        sendEmail(user_found.email, user_fullname).resetPasswordLink(token);
+        ApiGoogleEmailService.getInstance().sendVerificationCode(
+          user_found.email,
+          user_fullname,
+          token
+        );
       }
       res.sendStatus(204);
     } catch (e) {

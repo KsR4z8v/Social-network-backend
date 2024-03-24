@@ -188,7 +188,7 @@ export const middleware_sendEmail = (
   try {
     const type: string = req.query?.type as string;
 
-    const { email, id_user } = req.body;
+    const { user } = req.body;
     if (!type || type.trim() === "") {
       throw new IncorrectDataRequest(
         "Debe de contener un tipo de envio mediante query"
@@ -200,24 +200,9 @@ export const middleware_sendEmail = (
       );
     }
 
-    if (!email && !id_user) {
+    if (!user) {
       throw new IncorrectDataRequest(
         "Se necesita un id o el correo electronico del usuario registrado"
-      );
-    }
-
-    const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (email && !regex_email.test(email)) {
-      throw new IncorrectDataFormat(
-        "email",
-        "El correo  no tiene un formato valido"
-      );
-    }
-    if (id_user && !Types.ObjectId.isValid(id_user)) {
-      throw new IncorrectDataFormat(
-        "id",
-        "El id del usuario no tiene un formato valido"
       );
     }
 
