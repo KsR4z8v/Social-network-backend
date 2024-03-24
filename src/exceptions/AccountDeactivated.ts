@@ -5,7 +5,7 @@ export default class AccountDeactivated extends ExceptionServer {
     super(
       "ACCOUNT_DEACTIVATED",
       104,
-      "La publicacion tiene los comentarios desactivados",
+      "La cuenta se encuentra  desactivada",
       403
     );
   }
