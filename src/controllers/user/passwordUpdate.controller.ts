@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
-import encryptPassword from "../../helpers/encrypt";
+import { hashString } from "../../helpers/hashString";
 import bcrypt from "bcryptjs";
 import MongoUserRepository from "../../database/repositories/MongoUserRepository";
 import ErrorHandler from "../../helpers/ErrorHandler";
-import UserNotExist from "../../exceptions/UserNotExist";
 import PasswordIncorrect from "../../exceptions/PasswordIncorrect";
 
 export default class PasswordUpdateController {
@@ -21,7 +20,7 @@ export default class PasswordUpdateController {
       if (!(await bcrypt.compare(old_password, user_found.password))) {
         throw new PasswordIncorrect();
       }
-      const password_new_hash = await encryptPassword(new_password);
+      const password_new_hash = await hashString(new_password);
 
       if (await bcrypt.compare(old_password, password_new_hash)) {
         return res.status(411).json({

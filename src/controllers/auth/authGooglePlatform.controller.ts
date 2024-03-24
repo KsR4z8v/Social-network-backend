@@ -7,7 +7,7 @@ import config from "../../configs/config";
 import MongoUserRepository from "../../database/repositories/MongoUserRepository";
 import ErrorHandler from "../../helpers/ErrorHandler";
 import AccountDeactivated from "../../exceptions/AccountDeactivated";
-import { hashString } from "../../helpers/encrypt";
+import { hashString } from "../../helpers/hashString";
 export default class AuthGooglePlatformController {
   constructor(
     readonly userRepository: MongoUserRepository,
@@ -24,7 +24,7 @@ export default class AuthGooglePlatformController {
         email: email as string,
       });
 
-      let id_user: string = user_found?._id;
+      let id_user: string = user_found?._id.toString();
 
       if (!user_found) {
         const password = await hashString(generateCode(10));
@@ -38,6 +38,9 @@ export default class AuthGooglePlatformController {
           picture || " ",
           " "
         );
+        await this.userRepository.updateSettings(insertedId, {
+          verified_email: true,
+        });
         id_user = insertedId;
       }
       if (user_found && !user_found.account_settings.state_account) {

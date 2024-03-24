@@ -26,17 +26,12 @@ export default class avatarUpdateController {
         process.env.AVATARS_FOLDER_DEST || ""
       );
 
-      backOff(
-        async () => {
-          await this.userRepository.updateAvatar(id_user, {
-            url: meta_data[0].url,
-            id_kit: meta_data[0].id_kit,
-          });
-        },
-        {
-          increment: "exp",
-        }
-      );
+      backOff(async () => {
+        await this.userRepository.updateAvatar(id_user, {
+          url: meta_data[0].url,
+          id_kit: meta_data[0].id_kit,
+        });
+      }, "exp");
       return res.sendStatus(204);
     } catch (e) {
       this.errorHandler.run(req, res, e);
