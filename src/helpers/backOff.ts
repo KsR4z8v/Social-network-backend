@@ -1,49 +1,53 @@
-interface typeFunction {
+export interface typeFunction {
   (): Promise<any>;
 }
 
+const sleep = async (time: number) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve("");
+    }, time);
+  });
+};
+
+/**
+ *
+ * @param totry function to try
+ * @param increment
+ * @param limit
+ * @returns
+ */
 const backOff = async (
   totry: typeFunction,
-  options = { increment: "1s" },
-  limit: number | undefined = undefined
-) => {
-  const sleep = async (time: number) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve("");
-      }, time);
-    });
-  };
-
-  let delay = 0;
-  let iteration = 1;
+  increment: "1s" | "sec" | "exp",
+  limit: number = -1
+): Promise<any | string> => {
+  let delay: number = 0;
+  let iteration: number = 1;
 
   const calcDelay = () => {
-    if (options.increment === "1s") {
+    if (increment === "1s") {
       delay = 1000;
     }
-    if (options.increment === "sec") {
+    if (increment === "sec") {
       delay += 1000;
     }
-    if (options.increment === "exp") {
+    if (increment === "exp") {
       delay = 1000 * Math.pow(2, iteration);
     }
   };
 
-  while (true) {
+  while (iteration <= limit || limit === -1) {
     try {
       return await totry();
     } catch (e) {
       console.log("Reintenta en...", delay, "ms", iteration, "ERROR", e);
       await sleep(delay);
       calcDelay();
-      if (limit === iteration) {
-        console.log("entra");
-        return "Limite excedido de intentos";
-      }
     }
     iteration += 1;
   }
+  return "limit exced";
 };
 
 export default backOff;
