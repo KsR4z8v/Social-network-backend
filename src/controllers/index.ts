@@ -20,6 +20,8 @@ import RestorePasswordController from "./user/restorePassword.controller";
 import DeleteAccountController from "./user/deleteAccount.controller";
 import DeleteRelationController from "./user/relationships/deleteRelation.controller";
 import FriendRequestController from "./user/relationships/friendRequest.controller";
+import GetFriendsController from "./user/GetFriends.controller";
+import GetRequestsController from "./user/GetRequests.controller";
 
 //POST CONTROLLERS
 import CreatePostController from "./posts/createPost.controller";
@@ -46,6 +48,11 @@ export default {
     errorHandler
   ),
   getInfoUserController: new GetInfoUserController(
+    userRepository,
+    errorHandler
+  ),
+  getFriendsController: new GetFriendsController(userRepository, errorHandler),
+  getRequestsController: new GetRequestsController(
     userRepository,
     errorHandler
   ),
@@ -79,7 +86,11 @@ export default {
     userRepository,
     errorHandler
   ),
-  getPostsController: new GetPostsController(postRepository, errorHandler),
+  getPostsController: new GetPostsController(
+    postRepository,
+    userRepository,
+    errorHandler
+  ),
   likePostController: new LikePostController(postRepository, errorHandler),
 
   createCommentController: new CreateCommentController(

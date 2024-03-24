@@ -10,17 +10,17 @@ export default class GetCommentsController {
   async run(req: Request, res: Response) {
     try {
       const { id_post } = req.params;
-      const { cursor } = req.query;
+      const { page } = req.query;
       const comments = await this.postRepository.getComments(
         id_post,
-        parseInt(cursor as string) || 1
+        parseInt(page as string) || 1
       );
       return res.status(200).json({
         state: "ok",
         data: {
           id_post,
           comments,
-          cursor: cursor ? parseInt(cursor as string) + 1 : 2,
+          cursor: page ? parseInt(page as string) + 1 : 2,
         },
       });
     } catch (e) {
