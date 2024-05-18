@@ -1,5 +1,12 @@
 import dotenv from "dotenv";
-dotenv.config();
+import { type ImageKitOptions } from "imagekit/dist/libs/interfaces";
+dotenv.config({ path: ".develop.env" });
+
+const IMAGE_KIT_CONFIG: ImageKitOptions = {
+  publicKey: process.env.PUBLIC_KEY_IMAGEKIT ?? "",
+  privateKey: process.env.PRIVATE_KEY_IMAGEKIT ?? "",
+  urlEndpoint: process.env.URL_ENDPOINT_IMAGEKIT ?? "",
+};
 
 export default {
   config_cors: {
@@ -10,11 +17,7 @@ export default {
     ],
     credentials: true,
   },
-  IMAGE_KIT_CONFIG: {
-    publicKey: process.env.PUBLIC_KEY_IMAGEKIT || "",
-    privateKey: process.env.PRIVATE_KEY_IMAGEKIT || "",
-    urlEndpoint: process.env.URL_ENDPOINT_IMAGEKIT || "",
-  },
+  IMAGE_KIT_CONFIG,
   logger: true,
   config_cookie: {
     path: "/",
