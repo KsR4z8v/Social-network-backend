@@ -1,5 +1,17 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
+
 import { Router } from "express";
 import controllers from "../../controllers";
+
+import {
+  middlewareDataUpdate,
+  middlewareAvatarUpdate,
+  middlewarePasswordUpdate,
+} from "../../middlewares/userControllers.middlewares";
+
+import verifyToken from "../../middlewares/verifyToken.middleware";
+
+import multer from "multer";
 const {
   getInfoUserController,
   avatarUpdateController,
@@ -12,70 +24,64 @@ const {
   getFriendsController,
   getRequestsController,
 } = controllers;
-import {
-  middleware_DataUpdate,
-  middleware_avatarUpdate,
-  middleware_passwordUpdate,
-} from "../../middlewares/userControllers.middlewares";
-import verify_token from "../../middlewares/verify_token.middleware";
-import multer from "multer";
+
 const upload = multer();
-const user_routes = Router();
+const userRoutes = Router();
 
-//User
-user_routes.get(
+// User
+userRoutes.get(
   "/:user",
-  verify_token,
-  getInfoUserController.run.bind(getInfoUserController)
+  verifyToken,
+  getInfoUserController.run.bind(getInfoUserController),
 );
-user_routes.get(
+userRoutes.get(
   "/:user/friends",
-  verify_token,
-  getFriendsController.run.bind(getFriendsController)
+  verifyToken,
+  getFriendsController.run.bind(getFriendsController),
 );
-user_routes.get(
+userRoutes.get(
   "/:user/:type",
-  verify_token,
-  getRequestsController.run.bind(getRequestsController)
+  verifyToken,
+  getRequestsController.run.bind(getRequestsController),
 );
-user_routes.patch(
+userRoutes.patch(
   "/:id_user/avatar",
-  verify_token,
+  verifyToken,
   upload.single("avatar"),
-  middleware_avatarUpdate,
-  avatarUpdateController.run.bind(avatarUpdateController)
+  middlewareAvatarUpdate,
+  avatarUpdateController.run.bind(avatarUpdateController),
 );
-user_routes.patch(
+userRoutes.patch(
   "/:id_user",
-  verify_token,
-  middleware_DataUpdate,
-  dataUpdateController.run.bind(dataUpdateController)
+  verifyToken,
+  middlewareDataUpdate,
+  dataUpdateController.run.bind(dataUpdateController),
 );
-user_routes.post(
+userRoutes.post(
   "/:id_user/password",
-  verify_token,
-  middleware_passwordUpdate,
-  passwordUpdateController.run.bind(passwordUpdateController)
+  verifyToken,
+  middlewarePasswordUpdate,
+  passwordUpdateController.run.bind(passwordUpdateController),
 );
-user_routes.post(
+userRoutes.post(
   "/:id_user/restore_pass",
-  verify_token,
-  restorePasswordController.run.bind(restorePasswordController)
+  verifyToken,
+  restorePasswordController.run.bind(restorePasswordController),
 );
-user_routes.delete(
+userRoutes.delete(
   "/:id_user",
-  verify_token,
-  deleteAccountController.run.bind(deleteAccountController)
+  verifyToken,
+  deleteAccountController.run.bind(deleteAccountController),
 );
-user_routes.post(
+userRoutes.post(
   "/:id_user/sendRequest/:to_user",
-  verify_token,
-  friendRequestController.run.bind(friendRequestController)
+  verifyToken,
+  friendRequestController.run.bind(friendRequestController),
 );
-user_routes.delete(
+userRoutes.delete(
   "/:id_user/relation/:id_relation",
-  verify_token,
-  deleteRelationController.run.bind(deleteRelationController)
+  verifyToken,
+  deleteRelationController.run.bind(deleteRelationController),
 );
 
-export default user_routes;
+export default userRoutes;

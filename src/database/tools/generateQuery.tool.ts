@@ -1,7 +1,11 @@
-export const generateQuery = (table: string) => {
-  const generate_payload = (type: string, data: Record<string, string>) => {
-    const keys = [];
-    const values = [];
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export const generateQuery = (table: string): Record<string, any> => {
+  const generatePayload = (
+    type: string,
+    data: Record<string, string>,
+  ): Record<string, any[]> => {
+    const keys: unknown[] = [];
+    const values: unknown[] = [];
     let index = 1;
     for (const i in data) {
       if (type === "to_update" || type === "to_select") {
@@ -18,34 +22,36 @@ export const generateQuery = (table: string) => {
   return {
     update: (
       condition: Record<string, any>,
-      data: Record<string, any>,
-      returns: string[]
+      data: Record<string, string>,
+      returns: string[],
     ) => {
-      const { keys, values } = generate_payload("to_update", data);
-      const key_condition = Object.keys(condition)[0];
-      values.push(condition[key_condition]);
+      const { keys, values } = generatePayload("to_update", data);
+
+      const keyCondition: string = Object.keys(condition)[0];
+
+      values.push(condition[keyCondition]);
       const query = `UPDATE ${table} SET  ${keys.join(
-        ", "
-      )} WHERE ${key_condition}=${"$" + values.length} RETURNING ${returns.join(
-        ","
+        ", ",
+      )} WHERE ${keyCondition}=${"$" + values.length} RETURNING ${returns.join(
+        ",",
       )}`;
       return { query, values };
     },
     insert: (data: Record<string, string>, returns: string[]) => {
-      const { keys, values } = generate_payload("to_insert", data);
+      const { keys, values } = generatePayload("to_insert", data);
       const query = `INSERT INTO ${table} (${Object.keys(data).join(
-        ", "
+        ", ",
       )} ) VALUES (${keys.join(", ")}) RETURNING ${returns.join(",")}`;
       return { query, values };
     },
     select: (
       filters: Record<string, string>,
       selectors: string[],
-      joins: string[]
+      joins: string[],
     ) => {
-      const { keys, values } = generate_payload("to_select", filters);
+      const { keys, values } = generatePayload("to_select", filters);
       const query = `SELECT ${selectors.join(",")} FROM ${table} ${joins.join(
-        " "
+        " ",
       )} WHERE ${keys.join(" or ")}`;
       return { query, values };
     },

@@ -1,14 +1,9 @@
 import MongoPostRepository from "./MongoPostRepository";
 import MongoUserRepository from "./MongoUserRepository";
+import ConnectionMongo from "../../configs/Connectionmongo";
+import { type Connection } from "mongoose";
 
-import dotenv from "dotenv";
-
-dotenv.config();
-
-import MongoConnection from "../../configs/db_connection_mongo";
-import { Connection } from "mongoose";
-//import poolLocal from "../../configs/db_connection_local";
-const connection: Connection = MongoConnection();
+const connection: Connection = ConnectionMongo();
 
 export default {
   userRepository: new MongoUserRepository(connection),

@@ -1,4 +1,4 @@
-import { Response, Request } from "express";
+import { type Response, type Request } from "express";
 import ExceptionServer from "../exceptions/ExceptionServer";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 
@@ -17,7 +17,7 @@ const createResponse = (
   httpCode: number | 500,
   type: string,
   code: number,
-  message: string
+  message: string,
 ): errorResponse => {
   return {
     state,
@@ -31,8 +31,8 @@ const createResponse = (
 };
 
 export default class ErrorHandler {
-  run(req: Request, res: Response, error: any) {
-    const default_res: errorResponse = {
+  run(req: Request, res: Response, error: unknown): unknown {
+    const defaultResponse: errorResponse = {
       state: "error",
       httpCode: 500,
       error: {
@@ -47,7 +47,7 @@ export default class ErrorHandler {
         401,
         "TOKEN_EXPIRED",
         602,
-        "token is expired"
+        "token is expired",
       );
       return res.status(r_.httpCode).json(r_);
     }
@@ -57,7 +57,7 @@ export default class ErrorHandler {
         401,
         "TOKEN_INVALID",
         601,
-        "token is invalid"
+        "token is invalid",
       );
       return res.status(r_.httpCode).json(r_);
     }
@@ -68,11 +68,11 @@ export default class ErrorHandler {
         error.httpCode,
         error.type,
         error.code,
-        error.message
+        error.message,
       );
       return res.status(r_.httpCode).json(r_);
     }
     console.log(error);
-    return res.status(default_res.httpCode).json(default_res);
+    return res.status(defaultResponse.httpCode).json(defaultResponse);
   }
 }

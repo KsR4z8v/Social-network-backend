@@ -6,7 +6,7 @@ class FailureToLoadMedia extends ExceptionServer {
       "FAILURE_UPLOAD_MEDIA",
       100,
       "hubo un error al subir los archivos porfavor intetna mas tarde",
-      500
+      500,
     );
     this.stack = "";
   }

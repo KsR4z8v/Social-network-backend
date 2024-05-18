@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from "express";
 import controllers from "../../controllers";
-import { middleware_sendEmail } from "../../middlewares/userControllers.middlewares";
-const email_routes: Router = Router();
+import { middlewareSendEmail } from "../../middlewares/userControllers.middlewares";
+const emailRoutes: Router = Router();
 
-email_routes.post(
+emailRoutes.post(
   "/sendEmail",
-  middleware_sendEmail,
-  controllers.sendEmailController.run.bind(controllers.sendEmailController)
+  middlewareSendEmail,
+  controllers.sendEmailController.run.bind(controllers.sendEmailController),
 );
 
-export default email_routes;
+export default emailRoutes;

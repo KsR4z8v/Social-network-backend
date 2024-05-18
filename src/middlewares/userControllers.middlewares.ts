@@ -1,16 +1,18 @@
-import { Request, Response, NextFunction } from "express";
+/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+import { type Request, type Response, type NextFunction } from "express";
 import { validateDateToRegister } from "../helpers/dateFunctions";
 import IncorrectDataRequest from "../exceptions/IncorrectDataRequest";
 import ErrorHandler from "../helpers/ErrorHandler";
 import IncorrectDataFormat from "../exceptions/IncorrectDataFormat";
-import { Types } from "mongoose";
+
 const errorHandler: ErrorHandler = new ErrorHandler();
 
-export const middleware_Sign = (
+export const middlewareSign = (
   req: Request,
   res: Response,
-  next: NextFunction
-) => {
+  next: NextFunction,
+): void => {
   try {
     const { user, password } = req.body;
     if (!user || !password) {
@@ -22,11 +24,11 @@ export const middleware_Sign = (
   }
 };
 
-export const middleware_SignUp = (
+export const middlewareSignUp = (
   req: Request,
   res: Response,
-  next: NextFunction
-) => {
+  next: NextFunction,
+): void => {
   try {
     const { fullname, email, password, date_born, phone_number, username } =
       req.body;
@@ -41,42 +43,37 @@ export const middleware_SignUp = (
       throw new IncorrectDataRequest();
     }
 
-    const data = date_born.split("-");
-    const current_year = new Date().getFullYear();
-
     const regex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
-    const regex_email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!regex.test(date_born)) {
       throw new IncorrectDataFormat("date", date_born);
     }
-    if (data[0] > current_year) {
-      throw new IncorrectDataRequest("La fecha es mayor a la actual");
-    }
+
     if (!validateDateToRegister(date_born)) {
       throw new IncorrectDataRequest(
-        "Debes de ser mayor de edad para poder registrarte"
+        "Debes de ser mayor de edad para poder registrarte",
       );
     }
-    if (!regex_email.test(email)) {
+    if (!regexEmail.test(email)) {
       throw new IncorrectDataFormat("email", email);
     }
 
     if (password.length < 6) {
       throw new IncorrectDataFormat(
         "password",
-        `${password} La contraseña debe tener como mínimo 5 caracteres`
+        `${password} La contraseña debe tener como mínimo 5 caracteres`,
       );
     }
     if (!/\d/.test(password)) {
       throw new IncorrectDataFormat(
         "password",
-        `${password} La contraseña debe tener almenos un caracter`
+        `${password} La contraseña debe tener almenos un caracter`,
       );
     }
     if (password.includes(" ")) {
       throw new IncorrectDataFormat(
         "password",
-        `${password} La contraseña no debe tener espacios`
+        `${password} La contraseña no debe tener espacios`,
       );
     }
     if (
@@ -85,7 +82,7 @@ export const middleware_SignUp = (
     ) {
       throw new IncorrectDataFormat(
         "phone_number",
-        `${phone_number} el numero de telefono no es correcto`
+        `${phone_number} el numero de telefono no es correcto`,
       );
     }
 
@@ -95,13 +92,13 @@ export const middleware_SignUp = (
   }
 };
 
-export const middleware_DataUpdate = (
+export const middlewareDataUpdate = (
   req: Request,
   res: Response,
-  next: NextFunction
-) => {
+  next: NextFunction,
+): void => {
   try {
-    let keys_valids = [
+    let keysValid = [
       "fullname",
       "email",
       "phone_number",
@@ -111,10 +108,10 @@ export const middleware_DataUpdate = (
     ];
 
     if (req.query.data === "config") {
-      keys_valids = ["viewProfile"];
+      keysValid = ["profileView"];
     }
 
-    const keys_invalids = [
+    const keysInvalid = [
       "password",
       "state_account",
       "date_created",
@@ -129,12 +126,12 @@ export const middleware_DataUpdate = (
       throw new IncorrectDataRequest("Porfavor envia parametros a actualizar");
     }
     for (const key of keys) {
-      if (keys_invalids.includes(key)) {
+      if (keysInvalid.includes(key)) {
         throw new IncorrectDataRequest(
-          `No se pùede actualizar el valor ${key}  desde este endpoint`
+          `No se pùede actualizar el valor ${key}  desde este endpoint`,
         );
       }
-      if (!keys_valids.includes(key)) {
+      if (!keysValid.includes(key)) {
         throw new IncorrectDataRequest(`la key ${key} es incorrecta`);
       }
     }
@@ -143,11 +140,11 @@ export const middleware_DataUpdate = (
     errorHandler.run(req, res, e);
   }
 };
-export const middleware_avatarUpdate = (
+export const middlewareAvatarUpdate = (
   req: Request,
   res: Response,
-  next: NextFunction
-) => {
+  next: NextFunction,
+): void => {
   try {
     const data: Express.Multer.File | undefined = req.file;
 
@@ -163,11 +160,11 @@ export const middleware_avatarUpdate = (
   }
 };
 
-export const middleware_passwordUpdate = (
+export const middlewarePasswordUpdate = (
   req: Request,
   res: Response,
-  next: NextFunction
-) => {
+  next: NextFunction,
+): void => {
   try {
     const { old_password, new_password } = req.body;
 
@@ -180,29 +177,29 @@ export const middleware_passwordUpdate = (
   }
 };
 
-export const middleware_sendEmail = (
+export const middlewareSendEmail = (
   req: Request,
   res: Response,
-  next: NextFunction
-) => {
+  next: NextFunction,
+): void => {
   try {
     const type: string = req.query?.type as string;
 
     const { user } = req.body;
     if (!type || type.trim() === "") {
       throw new IncorrectDataRequest(
-        "Debe de contener un tipo de envio mediante query"
+        "Debe de contener un tipo de envio mediante query",
       );
     }
     if (!["recoveryPassword", "verifyAccount"].includes(type)) {
       throw new IncorrectDataRequest(
-        "El tipo no es correcto para el envio del correo"
+        "El tipo no es correcto para el envio del correo",
       );
     }
 
     if (!user) {
       throw new IncorrectDataRequest(
-        "Se necesita un id o el correo electronico del usuario registrado"
+        "Se necesita un id o el correo electronico del usuario registrado",
       );
     }
 

@@ -5,8 +5,8 @@ export default class IncorrectDataRequest extends ExceptionServer {
     super(
       "INCORRECT_DATA_REQUEST",
       101,
-      `El cuerpo es incorrecto  ${message ? "-> " + message : ""}`,
-      400
+      message ?? "El cuerpo es incorrecto",
+      400,
     );
     this.stack = "";
   }

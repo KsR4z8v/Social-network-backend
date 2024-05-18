@@ -6,7 +6,7 @@ export default class VerificationCodeExpired extends ExceptionServer {
       "VERIFICATION_CODE_EXPIRED",
       108,
       `El codigo de verificacion ha expirado`,
-      401
+      401,
     );
   }
 }

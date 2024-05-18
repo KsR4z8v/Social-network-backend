@@ -6,7 +6,7 @@ export default class CommentsDeactivated extends ExceptionServer {
       "COMMENTS_DEACTIVATED",
       107,
       `La publicacion ${message} tiene los comentarios desactivados`,
-      403
+      403,
     );
   }
 }

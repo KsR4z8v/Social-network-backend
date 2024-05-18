@@ -6,7 +6,7 @@ export default class RequestNotExist extends ExceptionServer {
       "REQUEST_NOT_EXIST",
       114,
       `La solicitud no existe ${messsage} no existe`,
-      404
+      404,
     );
   }
 }

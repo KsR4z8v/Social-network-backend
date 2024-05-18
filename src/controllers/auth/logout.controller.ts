@@ -1,11 +1,11 @@
-import e, { Request, Response } from "express";
+import { type Request, type Response } from "express";
 import dotenv from "dotenv";
-import ErrorHandler from "../../helpers/ErrorHandler";
+import type ErrorHandler from "../../helpers/ErrorHandler";
 dotenv.config();
 
 export default class LogoutController {
   constructor(readonly errorHandler: ErrorHandler) {}
-  run(req: Request, res: Response) {
+  async run(req: Request, res: Response): Promise<Response | undefined> {
     try {
       res.clearCookie("tkn");
       req.session.destroy(function (e) {
@@ -13,7 +13,7 @@ export default class LogoutController {
           console.log(e);
         }
       });
-      res.sendStatus(204);
+      return res.sendStatus(204);
     } catch (e) {
       this.errorHandler.run(req, res, e);
     }

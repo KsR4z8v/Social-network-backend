@@ -1,55 +1,54 @@
-import { Request, Response } from "express";
+import { type Request, type Response } from "express";
 import codeGenerator from "../../helpers/code_generator";
 import jwt from "jsonwebtoken";
 import VerifyCodeRedisService from "../../database/redis/VerifyCodeRedisService";
-import MongoUserRepository from "../../database/repositories/MongoUserRepository";
-import ErrorHandler from "../../helpers/ErrorHandler";
+import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
+import type ErrorHandler from "../../helpers/ErrorHandler";
 import AccountDeactivated from "../../exceptions/AccountDeactivated";
 import ApiGoogleEmailService from "../../services/sendEmailGoogle.service";
 
 export default class SendEmailController {
   constructor(
     readonly userRepository: MongoUserRepository,
-    readonly errorHandler: ErrorHandler
+    readonly errorHandler: ErrorHandler,
   ) {}
-  async run(req: Request, res: Response) {
+
+  async run(req: Request, res: Response): Promise<Response | undefined> {
     try {
       const { type } = req.query;
-
       const { user } = req.body;
 
-      const user_found = await this.userRepository.find(user);
+      const userFound = await this.userRepository.find(user as string);
 
-      if (!user_found.account_settings.state_account) {
+      if (!userFound.accountSettings.state_account) {
         throw new AccountDeactivated();
       }
-      const user_fullname = user_found.fullname.split(" ")[0];
+      const userFullname = userFound.fullname.split(" ")[0];
+
       if (type === "verifyAccount") {
         const serviceRedis = VerifyCodeRedisService.getInstance();
-        const verify_Code = codeGenerator(4);
-        await serviceRedis.setVerificationCode(
-          user_found._id.toString(),
-          verify_Code
-        );
-        ApiGoogleEmailService.getInstance().sendVerificationCode(
-          user_found.email,
-          user_fullname,
-          verify_Code
+        const verifyCode = codeGenerator(4);
+        void serviceRedis.setVerificationCode(userFound.id, verifyCode);
+
+        void ApiGoogleEmailService.getInstance().sendVerificationCode(
+          userFound.email,
+          userFullname,
+          verifyCode,
         );
       }
       if (type === "recoveryPassword") {
         const token = jwt.sign(
-          { id_user: user_found.id_user },
-          process.env.KEY_SECRET_JWT || "secret",
-          { expiresIn: "1h" }
+          { id_user: userFound.id },
+          process.env.KEY_SECRET_JWT ?? "secret",
+          { expiresIn: "5m" },
         );
-        ApiGoogleEmailService.getInstance().sendVerificationCode(
-          user_found.email,
-          user_fullname,
-          token
+        void ApiGoogleEmailService.getInstance().sendVerificationCode(
+          userFound.email,
+          userFullname,
+          token,
         );
       }
-      res.sendStatus(204);
+      return res.sendStatus(204);
     } catch (e) {
       this.errorHandler.run(req, res, e);
     }

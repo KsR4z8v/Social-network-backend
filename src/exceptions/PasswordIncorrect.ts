@@ -6,7 +6,7 @@ export default class PasswordIncorrect extends ExceptionServer {
       "PASSWORD_INCORRECT",
       101,
       "la contraseña es incorrecta, intenta nuevamente",
-      401
+      401,
     );
     this.stack = "";
   }

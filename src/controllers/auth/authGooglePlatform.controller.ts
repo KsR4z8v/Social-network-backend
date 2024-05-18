@@ -1,63 +1,66 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import validationTokenGoogle from "../../helpers/validationTokenGoogle";
 import generateCode from "../../helpers/code_generator";
-import { Request, Response } from "express";
+import { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
 import { generateDateToRegister } from "../../helpers/dateFunctions";
 import config from "../../configs/config";
-import MongoUserRepository from "../../database/repositories/MongoUserRepository";
-import ErrorHandler from "../../helpers/ErrorHandler";
+import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
+import type ErrorHandler from "../../helpers/ErrorHandler";
 import AccountDeactivated from "../../exceptions/AccountDeactivated";
 import { hashString } from "../../helpers/hashString";
 export default class AuthGooglePlatformController {
   constructor(
     readonly userRepository: MongoUserRepository,
-    readonly errorHandler: ErrorHandler
+    readonly errorHandler: ErrorHandler,
   ) {}
-  async run(req: Request, res: Response) {
+
+  async run(req: Request, res: Response): Promise<Response | undefined> {
     try {
       const { credentials } = req.body;
       const { picture, name, given_name, email } = await validationTokenGoogle(
-        credentials.credential
+        credentials.credential as string,
       );
 
-      const user_found = await this.userRepository.exist({
+      const userFound = await this.userRepository.exist({
+        // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
         email: email as string,
       });
 
-      let id_user: string = user_found?._id.toString();
+      let idUser: string | undefined = userFound?.id;
 
-      if (!user_found) {
+      if (!userFound) {
         const password = await hashString(generateCode(10));
 
         const insertedId = await this.userRepository.create(
-          given_name || " ",
-          email || " ",
-          name || " ",
+          given_name ?? " ",
+          email ?? " ",
+          name ?? " ",
           password,
           generateDateToRegister(),
-          picture || " ",
-          " "
+          picture ?? " ",
+          " ",
         );
         await this.userRepository.updateSettings(insertedId, {
           verified_email: true,
         });
-        id_user = insertedId;
+        idUser = insertedId;
       }
-      if (user_found && !user_found.account_settings.state_account) {
+      if (userFound && !userFound.account_settings.state_account) {
         throw new AccountDeactivated();
       }
 
       const tkn = jwt.sign(
-        { sessionId: req.session.id, id_user },
-        process.env.KEY_SECRET_JWT || "secret",
-        config.config_token
+        { sessionId: req.session.id, idUser },
+        process.env.KEY_SECRET_JWT ?? "secret",
+        config.config_token,
       );
 
-      res.status(200).json({
+      return res.status(200).json({
         state: "ok",
         data: {
           csrftoken: tkn,
-          id_user,
+          id_user: idUser,
         },
       });
     } catch (e) {

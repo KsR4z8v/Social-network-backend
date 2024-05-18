@@ -1,43 +1,49 @@
 import ImageKit from "imagekit";
-import config from "../configs/config";
 import FailureToLoadMedia from "../exceptions/FailureToLoadMedia";
 import backOff from "../helpers/backOff";
+import config from "../configs/config";
+
 const imagekit = new ImageKit(config.IMAGE_KIT_CONFIG);
 
-export const upload_Media = async (
-  files: Express.Multer.File[],
-  path: string
-) => {
-  let images_upload: Record<string, string>[] = [];
+export type UploadMediaResponse = Array<{
+  url: string;
+  id_kit: string;
+}>;
 
-  for (let i = 0; i < files.length; i++) {
+export const uploadMedia = async (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  files: any[],
+  path: string,
+): Promise<UploadMediaResponse> => {
+  const imagesUpload: UploadMediaResponse = [];
+
+  for (const file of files) {
     try {
       const resp_ = await imagekit.upload({
-        file: files[i].buffer,
-        fileName: files[i].originalname,
-        folder:
-          path + (files[i].mimetype === "video/mp4" ? "videos" : "images"),
+        file: file.buffer,
+        fileName: file.originalname,
+        folder: path + (file.mimetype === "video/mp4" ? "videos" : "images"),
       });
-      images_upload.push({ url: resp_.url, id_kit: resp_.fileId });
+      imagesUpload.push({ url: resp_.url, id_kit: resp_.fileId });
     } catch (e) {
-      if (images_upload.length > 0) {
-        delete_Media(images_upload.map((i) => i.id_kit));
+      if (imagesUpload.length > 0) {
+        void deleteMedia(imagesUpload.map((i) => i.id_kit));
       }
       throw new FailureToLoadMedia();
     }
   }
-  return images_upload;
+  return imagesUpload;
 };
 
-export const delete_Media = async (id_images: string[]) => {
-  for (let i = 0; i < id_images.length; i++) {
+export const deleteMedia = async (idImages: string[]): Promise<void> => {
+  for (const idImage of idImages) {
     await backOff(
       async () => {
-        console.log("Eliminando...", id_images[i]);
-        await imagekit.deleteFile(id_images[i]);
+        // console.log("Eliminando...", id_image);
+        await imagekit.deleteFile(idImage);
       },
       "sec",
-      10
+      10,
     );
   }
 };
