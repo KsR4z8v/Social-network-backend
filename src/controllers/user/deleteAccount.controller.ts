@@ -1,19 +1,21 @@
-import { Request, Response } from "express";
-import MongoUserRepository from "../../database/repositories/MongoUserRepository";
-import ErrorHandler from "../../helpers/ErrorHandler";
+/* eslint-disable @typescript-eslint/naming-convention */
+import { type Request, type Response } from "express";
+import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
+import type ErrorHandler from "../../helpers/ErrorHandler";
 
 export default class DeleteAccountController {
   constructor(
     readonly userRepository: MongoUserRepository,
-    readonly errorHandler: ErrorHandler
+    readonly errorHandler: ErrorHandler,
   ) {}
-  async run(req: Request, res: Response) {
+
+  async run(req: Request, res: Response): Promise<Response | undefined> {
     try {
       const { id_user } = req.params;
 
-      await this.userRepository.delete(id_user.toString());
+      await this.userRepository.delete(id_user);
 
-      res.sendStatus(204);
+      return res.sendStatus(204);
     } catch (e) {
       this.errorHandler.run(req, res, e);
     }

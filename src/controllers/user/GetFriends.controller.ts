@@ -1,25 +1,23 @@
-import { Request, Response } from "express";
+import { type Request, type Response } from "express";
 import getDataToken from "../../helpers/getDataToken";
-import MongoUserRepository from "../../database/repositories/MongoUserRepository";
-import ErrorHandler from "../../helpers/ErrorHandler";
+import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
+import type ErrorHandler from "../../helpers/ErrorHandler";
 
 export default class GetFriendsController {
   constructor(
     readonly userRepository: MongoUserRepository,
-    readonly errorHandler: ErrorHandler
+    readonly errorHandler: ErrorHandler,
   ) {}
-  async run(req: Request, res: Response) {
+
+  async run(req: Request, res: Response): Promise<Response | undefined> {
     try {
       const { user } = req.params;
       const { page } = req.query;
       const { payload } = getDataToken(req);
-      const id_user_tk = payload.id_user;
+      const idUserTk: string = payload.idUser;
 
-      const user_found = await this.userRepository.find(user);
-      if (
-        user_found._id.toString() !== id_user_tk &&
-        !user_found.user_preferences.profileView
-      ) {
+      const userFound = await this.userRepository.find(user);
+      if (userFound.id !== idUserTk && !userFound.userPreferences.profileView) {
         return res.status(200).json({
           state: "ok",
           data: { friends: [] },
@@ -27,16 +25,16 @@ export default class GetFriendsController {
         });
       }
 
-      const friends_found = await this.userRepository.getRelationFields(
-        user_found._id.toString(),
+      const friendsFound = await this.userRepository.getRelationFields(
+        userFound.id,
         "friends",
-        id_user_tk,
-        parseInt(page as string)
+        idUserTk,
+        parseInt(page as string),
       );
 
       return res
         .status(200)
-        .json({ state: "ok", data: { friends: friends_found } });
+        .json({ state: "ok", data: { friends: friendsFound } });
     } catch (e) {
       this.errorHandler.run(req, res, e);
     }

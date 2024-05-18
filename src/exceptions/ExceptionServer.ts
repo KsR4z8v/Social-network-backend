@@ -3,7 +3,7 @@ export default class ExceptionServer extends Error {
     readonly type: string,
     readonly code: number,
     readonly message: string,
-    readonly httpCode: number
+    readonly httpCode: number,
   ) {
     super(message);
     this.stack = "";

@@ -1,50 +1,55 @@
-import { Connection, Types } from "mongoose";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Types, type Connection } from "mongoose";
 import PostSchema from "../schemasMongo/PostSchema";
 import UserSchema from "../schemasMongo/UserSchema";
 import UserNotExist from "../../exceptions/UserNotExist";
 import PostNotExist from "../../exceptions/PostNotExist";
 import CommentsDeactivated from "../../exceptions/CommentsDeactivated";
+
 export default class MongoPostRepository {
-  private connection: Connection;
-  private postModel;
-  private userModel;
+  private readonly connection: Connection;
+  private readonly postModel;
+  private readonly userModel;
+
   constructor(connection: Connection) {
     this.connection = connection;
     this.postModel = connection.model("Post", PostSchema, "Post");
     this.userModel = connection.model("User", UserSchema, "User");
   }
-  //*ok
-  async find(id_post: string): Promise<Record<string, any>> {
+
+  // *ok
+  async find(idPost: string): Promise<Record<string, any>> {
     const post = await this.postModel
       .findOne({
-        _id: id_post,
+        _id: idPost,
         doc_deleted: false,
       })
       .select("_id author config");
     if (!post) {
-      throw new PostNotExist(id_post);
+      throw new PostNotExist(idPost);
     }
     return post;
   }
-  //*ok
-  async delete(id_post: string): Promise<void> {
+
+  // *ok
+  async delete(idPost: string): Promise<void> {
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
       const post = await this.postModel
         .findOneAndUpdate(
-          { _id: id_post, doc_deleted: false },
+          { _id: idPost, doc_deleted: false },
           { doc_deleted: true },
-          { session }
+          { session },
         )
         .select("author");
       if (!post) {
-        throw new PostNotExist(id_post);
+        throw new PostNotExist(idPost);
       }
       await this.userModel.updateOne(
         { _id: post.author },
-        { $pullAll: { posts: [id_post] } },
-        { session }
+        { $pullAll: { posts: [idPost] } },
+        { session },
       );
       await session.commitTransaction();
     } catch (e) {
@@ -54,50 +59,50 @@ export default class MongoPostRepository {
       await session.endSession();
     }
   }
-  //*ok
+
+  // *ok
   async getAll(
     { author }: Record<string, any>,
-    id_user: string,
-    cursor?: Date
-  ): Promise<Record<string, any>[]> {
-    const query_db: Record<string, any> = {
+    idUser: string,
+    cursor?: Date,
+  ): Promise<Array<Record<string, any>>> {
+    const queryDb: Record<string, any> = {
       "config.private": false,
       "config.archived": false,
       doc_deleted: false,
     };
     if (author) {
-      query_db.author = author;
+      queryDb.author = author;
     }
     if (cursor) {
-      query_db.createdAt = { $lt: cursor };
+      queryDb.createdAt = { $lt: cursor };
     }
 
     const projection = {
-      countComments: { $size: "$comments" },
-      countLikes: { $size: "$likes" },
+      countComments: 1,
+      countLikes: 1,
       config: 1,
       text: 1,
       likedbyme: {
-        $in: [new Types.ObjectId(id_user), "$likes.user"],
+        $in: [new Types.ObjectId(idUser), "$likes.user"],
       },
       "media.url": 1,
       createdAt: 1,
     };
 
     const posts = await this.postModel
-      .find(query_db, projection)
+      .find(queryDb, projection)
       .populate("author", "_id avatar.url username verified")
       .sort({ createdAt: "desc" })
       .limit(15);
-
     return posts;
   }
 
-  //*ok es bellisimaaaaa
-  async getBySearchIndex(query: string, id_user: string) {
+  // *ok es bellisimaaaaa
+  async getBySearchIndex(query: string, idUser: string): Promise<any> {
     const projection = {
       countComments: { $size: "$comments" },
-      countLikes: { $size: "$likes" },
+      countLikes: 1,
       config: 1,
       text: 1,
       "media.url": 1,
@@ -106,7 +111,7 @@ export default class MongoPostRepository {
       "author.username": 1,
       "author.verified": 1,
       "author._id": 1,
-      likedbyme: { $in: [new Types.ObjectId(id_user), "$likes"] },
+      likedbyme: { $in: [new Types.ObjectId(idUser), "$likes"] },
     };
     const result = await this.postModel.aggregate([
       {
@@ -145,7 +150,7 @@ export default class MongoPostRepository {
               {
                 in: {
                   path: "likes",
-                  value: id_user,
+                  value: idUser,
                 },
               },
             ],
@@ -167,36 +172,36 @@ export default class MongoPostRepository {
         $project: projection,
       },
     ]);
-
     return result;
   }
-  //*ok
+
+  // *ok
   async create(
-    id_aut: string,
+    idAuthor: string,
     text: string | undefined,
-    media: Record<string, string>[]
+    media: Array<Record<string, string>>,
   ): Promise<string> {
     const session = await this.connection.startSession();
     session.startTransaction();
     try {
       const post = new this.postModel({
-        author: id_aut,
+        author: idAuthor,
         text,
         media,
       });
-      const resp_db = await post.save({ session });
-      const resp_db_2 = await this.userModel.updateOne(
-        { _id: id_aut, doc_deleted: false },
-        { $push: { posts: resp_db._id } },
-        { session }
+      const resDb = await post.save({ session });
+      const resDb2 = await this.userModel.updateOne(
+        { _id: idAuthor, doc_deleted: false },
+        { $push: { posts: resDb._id } },
+        { session },
       );
 
-      if (resp_db_2.modifiedCount === 0) {
-        throw new UserNotExist(id_aut);
+      if (resDb2.modifiedCount === 0) {
+        throw new UserNotExist(idAuthor);
       }
 
       await session.commitTransaction();
-      return resp_db._id.toString();
+      return resDb._id.toString();
     } catch (e) {
       await session.abortTransaction();
       throw e;
@@ -205,82 +210,88 @@ export default class MongoPostRepository {
     }
   }
 
-  //*ok
-  async like(id_user: string, id_post: string): Promise<void> {
-    //*ok
+  // *ok
+  async like(idUser: string, idPost: string): Promise<void> {
+    //  *ok
     const post = await this.postModel
       .findOne({
-        _id: id_post,
+        _id: idPost,
         doc_deleted: false,
         "config.archived": false,
         "config.private": false,
       })
       .select("likes");
     if (!post) {
-      throw new PostNotExist(id_post);
+      throw new PostNotExist(idPost);
     }
-    const l = post.likes.find((l) => l.user?.toString() === id_user);
+    const l = post.likes.find((l) => l.user?.toString() === idUser);
+
     if (l) {
       await this.postModel.updateOne(
-        { _id: id_post },
+        { _id: idPost },
         {
+          $inc: { countLikes: -1 },
           $pullAll: {
             likes: [l],
           },
-        }
+        },
       );
     } else {
       await this.postModel.updateOne(
-        { _id: id_post },
-        { $push: { likes: { user: id_user, createdAt: new Date() } } }
+        { _id: idPost },
+        {
+          $inc: { countLikes: 1 },
+          $push: { likes: { user: idUser, createdAt: new Date() } },
+        },
       );
     }
   }
-  //*ok
-  async comment(
-    id_user: string,
-    text: string,
-    id_post: string
-  ): Promise<Record<string, any>> {
-    //*ok
+
+  // *ok
+  async comment(idUser: string, text: string, idPost: string): Promise<string> {
+    // *ok
     const post = await this.postModel.findOne(
       {
-        _id: id_post,
+        _id: idPost,
         doc_deleted: false,
         "config.archived": false,
         "config.private": false,
       },
       {
         "config.comments_disabled": 1,
-      }
+      },
     );
 
     if (!post) {
-      throw new PostNotExist(id_post);
+      throw new PostNotExist(idPost);
     }
 
-    if ((post.config as Record<string, any>).comments_disabled) {
-      throw new CommentsDeactivated(id_post);
+    if ((post.config as Record<string, unknown>).comments_disabled) {
+      throw new CommentsDeactivated(idPost);
     }
-    const comment: Record<string, any> = {
-      _id: new Types.ObjectId(),
-      user: id_user,
+    const idComment = new Types.ObjectId();
+    const comment: Record<string, unknown> = {
+      user: idUser,
       edited: false,
       text,
       createdAt: new Date(),
     };
     await this.postModel.updateOne(
-      { _id: id_post },
-      { $push: { comments: comment } }
+      { _id: idPost },
+      {
+        $inc: { countComments: 1 },
+        $push: { comments: { _id: idComment, ...comment } },
+      },
     );
-    return comment;
+    return idComment.toString();
   }
-  //*ok
-  async getComments(id_post: string, page: number = 1): Promise<any[]> {
+
+  // *ok
+  async getComments(idPost: string, page = 1): Promise<any[]> {
     const post = await this.postModel
       .findOne(
         {
-          _id: id_post,
+          _id: idPost,
           doc_deleted: false,
           "config.archived": false,
           "config.private": false,
@@ -290,29 +301,30 @@ export default class MongoPostRepository {
             $slice: [-15 * page, 15],
           },
           "config.comments_disabled": 1,
-        }
+        },
       )
       .populate("comments.user", "avatar.url username _id verified")
       .populate("comments.likes.user", "avatar.url username _id");
 
     if (!post) {
-      throw new PostNotExist(id_post);
+      throw new PostNotExist(idPost);
     }
-    if ((post.config as Record<string, any>).comments_disabled) {
-      throw new CommentsDeactivated(id_post);
+    if ((post.config as Record<string, unknown>).comments_disabled) {
+      throw new CommentsDeactivated(idPost);
     }
     return post.comments;
   }
-  //*ok
+
+  // *ok
   async getLikes(
-    id_post: string,
-    page: number = 1,
-    id_user_v?: string
-  ): Promise<Record<string, any>[]> {
+    idPost: string,
+    page = 1,
+    idUserExt?: string,
+  ): Promise<Array<Record<string, any>>> {
     const post = await this.postModel
       .findOne(
         {
-          _id: id_post,
+          _id: idPost,
           doc_deleted: false,
           "config.archived": false,
           "config.private": false,
@@ -321,30 +333,34 @@ export default class MongoPostRepository {
           likes: {
             $slice: [-30 * page, 30],
           },
-        }
+        },
       )
       .select("likes");
 
     if (!post) {
-      throw new PostNotExist(id_post);
+      throw new PostNotExist(idPost);
     }
     const query = {
       _id: {
         $in: post.likes.map((l) => l.user),
       },
     };
-    //busco los usuarios que le dieron like a esa publicacion
-    const users_like = await this.userModel.find(query, {
+    // busco los usuarios que le dieron like a esa publicacion
+    const likes = await this.userModel.find(query, {
       _id: 1,
       username: 1,
+      verified: 1,
       "avatar.url": 1,
       myfriend: {
-        $in: [new Types.ObjectId(id_user_v), "$friends.user"],
+        $in: [new Types.ObjectId(idUserExt), "$friends.user"],
       },
     });
 
-    return users_like;
+    return likes;
   }
-  //TODO
-  async update() {}
+
+  // TODO
+  async update(): Promise<void> {
+    throw new Error("Method don't implement");
+  }
 }

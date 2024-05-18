@@ -1,9 +1,7 @@
 import repositories from "../database/repositories";
-const { userRepository, postRepository } = repositories;
 import ErrorHandler from "../helpers/ErrorHandler";
-const errorHandler: ErrorHandler = new ErrorHandler();
 
-//AUTH CONTROLLERS
+// AUTH CONTROLLERS
 import SignController from "./auth/sign.controller";
 import SignUpController from "./auth/signup.controller";
 import LogoutController from "./auth/logout.controller";
@@ -11,7 +9,7 @@ import SendEmailController from "./email/sendEmail.controller";
 import AuthGooglePlatformController from "./auth/authGooglePlatform.controller";
 import ConfirmEmailController from "./auth/ConfirmEmailController";
 
-//USER CONTROLLERS
+// USER CONTROLLERS
 import GetInfoUserController from "./user/getInfoUser.controller";
 import DataUpdateController from "./user/dataUpdate.controller";
 import PasswordUpdateController from "./user/passwordUpdate.controller";
@@ -23,91 +21,93 @@ import FriendRequestController from "./user/relationships/friendRequest.controll
 import GetFriendsController from "./user/GetFriends.controller";
 import GetRequestsController from "./user/GetRequests.controller";
 
-//POST CONTROLLERS
+// POST CONTROLLERS
 import CreatePostController from "./posts/createPost.controller";
 import GetPostsController from "./posts/getPosts.controller";
 import LikePostController from "./posts/like.controller";
 
-//COMMENTS CONTROLLERS
+// COMMENTS CONTROLLERS
 import CreateCommentController from "./comments/createComment.controller";
 import GetCommentsController from "./comments/getComments.controller";
 import GetLikesPostController from "./posts/getLikesPost.controller";
 import DeletePostController from "./posts/deletePost.controller";
+const { userRepository, postRepository } = repositories;
+const errorHandler: ErrorHandler = new ErrorHandler();
 
 export default {
   signController: new SignController(userRepository, errorHandler),
   signUpController: new SignUpController(userRepository, errorHandler),
   authGooglePlatformController: new AuthGooglePlatformController(
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   logoutController: new LogoutController(errorHandler),
   sendEmailController: new SendEmailController(userRepository, errorHandler),
   confirmEmailController: new ConfirmEmailController(
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   getInfoUserController: new GetInfoUserController(
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   getFriendsController: new GetFriendsController(userRepository, errorHandler),
   getRequestsController: new GetRequestsController(
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   dataUpdateController: new DataUpdateController(userRepository, errorHandler),
   passwordUpdateController: new PasswordUpdateController(
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   avatarUpdateController: new AvatarUpdateController(
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   restorePasswordController: new RestorePasswordController(
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   deleteAccountController: new DeleteAccountController(
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   deleteRelationController: new DeleteRelationController(
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   friendRequestController: new FriendRequestController(
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   createPostController: new CreatePostController(
     postRepository,
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   getPostsController: new GetPostsController(
     postRepository,
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   likePostController: new LikePostController(postRepository, errorHandler),
 
   createCommentController: new CreateCommentController(
     postRepository,
     userRepository,
-    errorHandler
+    errorHandler,
   ),
   getCommentsController: new GetCommentsController(
     postRepository,
-    errorHandler
+    errorHandler,
   ),
   getLikesPostController: new GetLikesPostController(
     postRepository,
-    errorHandler
+    errorHandler,
   ),
   deletePostController: new DeletePostController(postRepository, errorHandler),
-  /*editComment,
+  /* editComment,
   deleteComment,
   modifyPostController,
   getLikesPostController,

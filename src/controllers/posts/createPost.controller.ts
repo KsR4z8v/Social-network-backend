@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/naming-convention */
 import dotenv from "dotenv";
-import { upload_Media } from "../../services/imageKit.service";
-import { Request, Response } from "express";
-import MongoPostRepository from "../../database/repositories/MongoPostRepository";
-import MongoUserRepository from "../../database/repositories/MongoUserRepository";
-import ErrorHandler from "../../helpers/ErrorHandler";
-import UserNotExist from "../../exceptions/UserNotExist";
+import {
+  type UploadMediaResponse,
+  uploadMedia,
+} from "../../services/imageKit.service";
+import { type Request, type Response } from "express";
+import type MongoPostRepository from "../../database/repositories/MongoPostRepository";
+import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
+import type ErrorHandler from "../../helpers/ErrorHandler";
 import AccountDeactivated from "../../exceptions/AccountDeactivated";
 
 dotenv.config();
@@ -13,28 +17,31 @@ export default class CreatePostController {
   constructor(
     readonly postRepository: MongoPostRepository,
     readonly userRepository: MongoUserRepository,
-    readonly errorHandler: ErrorHandler
+    readonly errorHandler: ErrorHandler,
   ) {}
 
-  async run(req: Request, res: Response) {
+  async run(req: Request, res: Response): Promise<Response | undefined> {
     try {
       const { id_user } = req.params;
-      const media: any = req.files;
+      const media = req.files as any;
       const { text } = req.body;
 
-      const user_found = await this.userRepository.find(id_user);
+      const userFound = await this.userRepository.find(id_user);
 
-      if (!user_found.account_settings.state_account) {
+      if (!userFound.accountSettings.state_account) {
         throw new AccountDeactivated();
       }
 
-      let media_saved = media
-        ? await upload_Media(media, process.env.MEDIA_FOLDER_DEST || " ")
-        : []; //insert images on image kit
+      const mediaSaved: UploadMediaResponse = media
+        ? await uploadMedia(
+            media as any[],
+            process.env.MEDIA_FOLDER_DEST ?? " ",
+          )
+        : []; // insert images on image kit
 
-      await this.postRepository.create(id_user, text, media_saved);
+      await this.postRepository.create(id_user, text as string, mediaSaved);
 
-      res.sendStatus(204);
+      return res.sendStatus(204);
     } catch (e) {
       this.errorHandler.run(req, res, e);
     }

@@ -6,7 +6,7 @@ export default class ActionSuspended extends ExceptionServer {
       "ACTION_SUSPENDED",
       106,
       "Tu cuenta se encuentra suspendidad temporalmente",
-      403
+      403,
     );
   }
 }

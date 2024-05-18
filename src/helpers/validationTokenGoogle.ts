@@ -1,8 +1,12 @@
-import { OAuth2Client, LoginTicket, TokenPayload } from "google-auth-library";
+import {
+  OAuth2Client,
+  type LoginTicket,
+  type TokenPayload,
+} from "google-auth-library";
 import TokenGoogleInvalid from "../exceptions/TokenGoogleInvalid.exception";
 
 const validateCredentialsGoogle = async (
-  token: string
+  token: string,
 ): Promise<TokenPayload> => {
   try {
     const client: OAuth2Client = new OAuth2Client(process.env.ID_CLIENT);
@@ -11,6 +15,7 @@ const validateCredentialsGoogle = async (
       audience: process.env.ID_CLIENT,
     });
     const data: TokenPayload | undefined = ticket.getPayload();
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (!data) {
       throw new Error("Not tokenPayload");
     }

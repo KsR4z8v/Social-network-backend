@@ -5,8 +5,8 @@ export default class IncorrectDataFormat extends ExceptionServer {
     super(
       `INCORRECT_${type.toLocaleUpperCase()}_FORMAT`,
       110,
-      `El formato es incorrecto  ${message ? "-> " + `"${message}"` : ""} `,
-      422
+      `El formato es incorrecto  ${message ?? "-> " + `"${message}"`} `,
+      422,
     );
     this.stack = "";
   }

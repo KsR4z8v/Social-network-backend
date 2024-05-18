@@ -1,12 +1,12 @@
 import config from "../configs/config";
-import { Request, Response, NextFunction } from "express";
+import { type Request, type Response, type NextFunction } from "express";
 
-const logger = (req: Request, res: Response, next: NextFunction) => {
+const logger = (req: Request, res: Response, next: NextFunction): void => {
   if (config.logger) {
     console.log(
       `${new Date().toISOString()}  IP: ${req.ip}  METHOD: ${
         req.method
-      }  ROUTE: ${req.url}`
+      }  ROUTE: ${req.url}`,
     );
   }
   next();

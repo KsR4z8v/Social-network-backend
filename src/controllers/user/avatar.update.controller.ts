@@ -1,32 +1,33 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import backOff from "../../helpers/backOff";
-import { upload_Media, delete_Media } from "../../services/imageKit.service";
-import { Request, Response } from "express";
-import MongoUserRepository from "../../database/repositories/MongoUserRepository";
-import ErrorHandler from "../../helpers/ErrorHandler";
-import UserNotExist from "../../exceptions/UserNotExist";
+import { uploadMedia, deleteMedia } from "../../services/imageKit.service";
+import { type Request, type Response } from "express";
+import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
+import type ErrorHandler from "../../helpers/ErrorHandler";
 
 export default class avatarUpdateController {
   constructor(
     readonly userRepository: MongoUserRepository,
-    readonly errorHandler: ErrorHandler
+    readonly errorHandler: ErrorHandler,
   ) {}
-  async run(req: Request, res: Response) {
+
+  async run(req: Request, res: Response): Promise<Response | undefined> {
     try {
       const { id_user } = req.params;
 
       const avatar: Express.Multer.File | undefined = req.file;
 
-      const user_found = await this.userRepository.find(id_user);
+      const userFound = await this.userRepository.find(id_user);
 
-      if (user_found.avatar.id_kit) {
-        delete_Media([user_found.avatar.id_kit]);
+      if (userFound.avatar.id_kit) {
+        void deleteMedia([userFound.avatar.id_kit]);
       }
-      const meta_data = await upload_Media(
+      const meta_data = await uploadMedia(
         avatar ? [avatar] : [],
-        process.env.AVATARS_FOLDER_DEST || ""
+        process.env.AVATARS_FOLDER_DEST ?? "",
       );
 
-      backOff(async () => {
+      void backOff(async () => {
         await this.userRepository.updateAvatar(id_user, {
           url: meta_data[0].url,
           id_kit: meta_data[0].id_kit,

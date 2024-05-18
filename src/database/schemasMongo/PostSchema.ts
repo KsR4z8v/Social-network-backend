@@ -17,6 +17,8 @@ const PostSchema = new Schema(
         format: { type: String, default: null },
       },
     ],
+    countLikes: { type: Number, default: 0 },
+    countComments: { type: Number, default: 0 },
     comments: [
       {
         user: { type: Types.ObjectId, ref: "User" },
@@ -38,7 +40,7 @@ const PostSchema = new Schema(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default PostSchema;

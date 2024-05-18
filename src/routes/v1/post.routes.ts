@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from "express";
 import controllers from "../../controllers";
-import verify_token from "../../middlewares/verify_token.middleware";
-import { middleware_CreatePost } from "../../middlewares/postControllers.middlewares";
+import verify_token from "../../middlewares/verifyToken.middleware";
+import { middlewareCreatePost } from "../../middlewares/postControllers.middlewares";
+import multer from "multer";
 const {
   createPostController,
   getPostsController,
@@ -11,50 +13,50 @@ const {
   getLikesPostController,
   deletePostController,
 } = controllers;
-import multer from "multer";
+
 const upload = multer();
-const post_routes = Router();
+const postRoutes = Router();
 
 // controllers.createPostController
-post_routes.put(
+postRoutes.put(
   "/:id_user",
   verify_token,
   upload.array("media"),
-  middleware_CreatePost,
-  createPostController.run.bind(createPostController)
+  middlewareCreatePost,
+  createPostController.run.bind(createPostController),
 );
-post_routes.get(
+postRoutes.get(
   "/",
   verify_token,
-  getPostsController.run.bind(getPostsController)
+  getPostsController.run.bind(getPostsController),
 );
 
-post_routes.put(
+postRoutes.put(
   "/:id_post/likeby/:id_user",
   verify_token,
-  likePostController.run.bind(likePostController)
+  likePostController.run.bind(likePostController),
 );
 
-post_routes.put(
+postRoutes.put(
   "/:id_post/commentby/:id_user",
   verify_token,
-  createCommentController.run.bind(createCommentController)
+  createCommentController.run.bind(createCommentController),
 );
 
-post_routes.get(
+postRoutes.get(
   "/:id_post/comments",
   verify_token,
-  getCommentsController.run.bind(getCommentsController)
+  getCommentsController.run.bind(getCommentsController),
 );
-post_routes.get(
+postRoutes.get(
   "/:id_post/likes",
   verify_token,
-  getLikesPostController.run.bind(getLikesPostController)
+  getLikesPostController.run.bind(getLikesPostController),
 );
-post_routes.delete(
+postRoutes.delete(
   "/:id_post",
   verify_token,
-  deletePostController.run.bind(deletePostController)
+  deletePostController.run.bind(deletePostController),
 );
 /* post_routes.put(
   "/:id_post/report",
@@ -64,4 +66,4 @@ post_routes.delete(
 
 post_routes.patch("/:id_post", verify_token, controllers.modifyPostController); */
 
-export default post_routes;
+export default postRoutes;

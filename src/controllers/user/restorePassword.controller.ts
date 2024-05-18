@@ -1,24 +1,27 @@
-import MongoUserRepository from "../../database/repositories/MongoUserRepository";
-import ErrorHandler from "../../helpers/ErrorHandler";
+/* eslint-disable @typescript-eslint/naming-convention */
+import type User from "../../database/models/User";
+import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
+import type ErrorHandler from "../../helpers/ErrorHandler";
 import { hashString } from "../../helpers/hashString";
-import { Request, Response } from "express";
+import { type Request, type Response } from "express";
 
 export default class RestorePasswordController {
   constructor(
     readonly userRepository: MongoUserRepository,
-    readonly errorHandler: ErrorHandler
+    readonly errorHandler: ErrorHandler,
   ) {}
-  async run(req: Request, res: Response) {
+
+  async run(req: Request, res: Response): Promise<Response | undefined> {
     try {
       const { password } = req.body;
       const { id_user } = req.params;
 
-      const user_found = await this.userRepository.find(id_user);
+      const userFound: User = await this.userRepository.find(id_user);
 
-      const password_hash = await hashString(password);
+      const passwordHash: string = await hashString(password as string);
 
-      await this.userRepository.updateData(user_found.id_user, {
-        password: password_hash,
+      await this.userRepository.updateData(userFound.id, {
+        password: passwordHash,
       });
       return res.sendStatus(204);
     } catch (e) {

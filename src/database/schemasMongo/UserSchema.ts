@@ -25,6 +25,8 @@ export default new Schema(
     },
     verified: { type: Boolean, default: false },
     doc_deleted: { type: Boolean, default: false },
+    countFriends: { type: Number, default: 0 },
+    countPosts: { type: Number, default: 0 },
     friends: [{ user: { type: Types.ObjectId, ref: "User" } }],
     requests: [{ user: { type: Types.ObjectId, ref: "User" } }],
     my_requests_sent: [{ user: { type: Types.ObjectId, ref: "User" } }],
@@ -32,5 +34,5 @@ export default new Schema(
     posts_saved: [{ type: Types.ObjectId, ref: "Post" }],
     archived_posts: [{ type: Types.ObjectId, ref: "Post" }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );

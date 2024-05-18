@@ -1,47 +1,49 @@
-import { Request, Response } from "express";
+/* eslint-disable @typescript-eslint/naming-convention */
+import { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
 import VerifyCodeRedisService from "../../database/redis/VerifyCodeRedisService";
 import config from "../../configs/config";
-import MongoUserRepository from "../../database/repositories/MongoUserRepository";
-import ErrorHandler from "../../helpers/ErrorHandler";
-import UserNotExist from "../../exceptions/UserNotExist";
+import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
+import type ErrorHandler from "../../helpers/ErrorHandler";
 import VerificationCodeExpired from "../../exceptions/VerificationCodeExpired";
 import VerificationCodeIncorrect from "../../exceptions/VerificationCodeIncorrect";
+import type User from "../../database/models/User";
 
 export default class ConfirmEmailController {
   constructor(
     readonly userRepository: MongoUserRepository,
-    readonly errorHandler: ErrorHandler
+    readonly errorHandler: ErrorHandler,
   ) {}
-  async run(req: Request, res: Response) {
+
+  async run(req: Request, res: Response): Promise<Response | undefined> {
     try {
       const { id_user } = req.params;
       const { entered_code } = req.body;
-      const user_found = await this.userRepository.find(id_user);
+      const userFound: User = await this.userRepository.find(id_user);
 
-      const redis_service = VerifyCodeRedisService.getInstance();
-      const code_get = await redis_service.getVerificationCode(
-        id_user.toString()
+      const redisService = VerifyCodeRedisService.getInstance();
+      const verificationCode = await redisService.getVerificationCode(
+        userFound.id,
       );
 
-      if (!code_get) {
+      if (!verificationCode) {
         throw new VerificationCodeExpired();
       }
-      if (code_get != entered_code) {
+      if (verificationCode !== entered_code) {
         throw new VerificationCodeIncorrect();
       }
-      await redis_service.deleteVerificationCode(id_user.toString());
+      await redisService.deleteVerificationCode(id_user.toString());
       await this.userRepository.updateSettings(id_user, {
         verified_email: true,
       });
 
       const tkn = jwt.sign(
-        { sessionId: req.session.id, id_user: user_found._id },
-        process.env.KEY_SECRET_JWT || "secret",
-        config.config_token
+        { sessionId: req.session.id, id_user: userFound.id },
+        process.env.KEY_SECRET_JWT ?? "secret",
+        config.config_token,
       );
 
-      res.status(200).json({
+      return res.status(200).json({
         data: { id_user, csrftoken: tkn },
         state: "ok",
       });

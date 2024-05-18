@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-const generarCodigoVerificacion = (longitud: number) => {
+const generarCodigoVerificacion = (longitud: number): string => {
   const caracteresPermitidos = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let codigo = "";
 

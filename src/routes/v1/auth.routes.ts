@@ -1,5 +1,10 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from "express";
 import controllers from "../../controllers";
+import {
+  middlewareSignUp,
+  middlewareSign,
+} from "../../middlewares/userControllers.middlewares";
 const {
   signController,
   authGooglePlatformController,
@@ -7,27 +12,23 @@ const {
   logoutController,
   confirmEmailController,
 } = controllers;
-import {
-  middleware_SignUp,
-  middleware_Sign,
-} from "../../middlewares/userControllers.middlewares";
-const auth_routes = Router();
+const authRoutes = Router();
 
-//Authentication
-auth_routes.post("/", middleware_Sign, signController.run.bind(signController));
-auth_routes.post(
+// Authentication
+authRoutes.post("/", middlewareSign, signController.run.bind(signController));
+authRoutes.post(
   "/google_platform",
-  authGooglePlatformController.run.bind(authGooglePlatformController)
+  authGooglePlatformController.run.bind(authGooglePlatformController),
 );
-auth_routes.post(
+authRoutes.post(
   "/signup",
-  middleware_SignUp,
-  signUpController.run.bind(signUpController)
+  middlewareSignUp,
+  signUpController.run.bind(signUpController),
 );
-auth_routes.delete("/logout", logoutController.run.bind(logoutController));
-auth_routes.post(
+authRoutes.delete("/logout", logoutController.run.bind(logoutController));
+authRoutes.post(
   "/confirmEmail/:id_user",
-  confirmEmailController.run.bind(confirmEmailController)
+  confirmEmailController.run.bind(confirmEmailController),
 );
 
-export default auth_routes;
+export default authRoutes;

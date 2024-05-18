@@ -1,56 +1,60 @@
-import { Request, Response } from "express";
+/* eslint-disable @typescript-eslint/naming-convention */
+import { type Request, type Response } from "express";
 import codeGenerator from "../../helpers/code_generator";
 import { hashString } from "../../helpers/hashString";
 import VerifyCodeRedisService from "../../database/redis/VerifyCodeRedisService";
-import MongoUserRepository from "../../database/repositories/MongoUserRepository";
-import ErrorHandler from "../../helpers/ErrorHandler";
+import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
+import type ErrorHandler from "../../helpers/ErrorHandler";
 import DataAlreadyExist from "../../exceptions/DataAlreadyExist";
 import ApiGoogleEmailService from "../../services/sendEmailGoogle.service";
 
 export default class SignUpController {
   constructor(
     readonly userRepository: MongoUserRepository,
-    readonly errorHandler: ErrorHandler
+    readonly errorHandler: ErrorHandler,
   ) {
     this.userRepository = userRepository;
   }
-  async run(req: Request, res: Response) {
+
+  async run(req: Request, res: Response): Promise<Response | undefined> {
     try {
-      let { username, email, password, fullname, phone_number, date_born } =
+      const { username, email, password, fullname, phone_number, date_born } =
         req.body;
 
-      const user_found = await this.userRepository.exist({
+      const userFound = await this.userRepository.exist({
         email,
         username,
       });
 
-      if (user_found) {
+      if (userFound) {
         throw new DataAlreadyExist(
-          user_found.username === username ? "username" : "correo"
+          userFound.username === username ? "nombre de usuario" : "correo",
         );
       }
       const verifyCode = codeGenerator(4);
 
-      const password_encrypt = await hashString(password);
+      const password_encrypt = await hashString(password as string);
 
       const insertedId = await this.userRepository.create(
-        username,
-        email,
-        fullname,
+        username as string,
+        email as string,
+        fullname as string,
         password_encrypt,
-        date_born,
-        process.env.AVATAR_DEFAULT || "",
-        phone_number
+        date_born as Date,
+        process.env.AVATAR_DEFAULT ?? "",
+        phone_number as string,
       );
       const serviceRedis = VerifyCodeRedisService.getInstance();
       await serviceRedis.setVerificationCode(insertedId, verifyCode);
 
-      ApiGoogleEmailService.getInstance().sendVerificationCode(
-        email,
-        username,
-        verifyCode
+      void ApiGoogleEmailService.getInstance().sendVerificationCode(
+        email as string,
+        username as string,
+        verifyCode,
       );
-      res.status(200).json({ data: { id_user: insertedId }, state: "ok" });
+      return res
+        .status(200)
+        .json({ data: { id_user: insertedId }, state: "ok" });
     } catch (e) {
       this.errorHandler.run(req, res, e);
     }

@@ -1,70 +1,80 @@
-import { Connection, Types } from "mongoose";
+import { type Connection, Types } from "mongoose";
 import UserSchema from "../schemasMongo/UserSchema";
 import PostSchema from "../schemasMongo/PostSchema";
 import UserNotExist from "../../exceptions/UserNotExist";
 import RequestNotExist from "../../exceptions/RequestNotExist";
+import User from "../models/User";
+import { type Avatar } from "../models/User";
+import type UserPreferences from "../models/UserPreferences";
+import type AccountSettings from "../models/AccountSettings";
+
 export default class MongoUserRepository {
-  private userModel;
-  private postModel;
-  private connection: Connection;
+  private readonly userModel;
+  private readonly postModel;
+  private readonly connection: Connection;
 
   constructor(connection: Connection) {
     this.userModel = connection.model("User", UserSchema, "User");
     this.postModel = connection.model("Post", PostSchema, "Post");
     this.connection = connection;
   }
+
   async create(
     username: string,
     email: string,
     fullname: string,
     password: string,
-    date_born: Date,
-    url_avatar: string,
-    phone_number: string
+    dateBorn: Date,
+    urlAvatar: string,
+    phoneNumber: string,
   ): Promise<string> {
     const user_ = new this.userModel({
       username,
       email,
       fullname,
-      date_born,
+      date_born: dateBorn,
       password,
-      phone_number,
+      phone_number: phoneNumber,
       avatar: {
-        url: url_avatar,
+        url: urlAvatar,
       },
     });
-    const resp_db = await user_.save();
+    const respDb = await user_.save();
 
-    return resp_db._id.toString();
+    return respDb._id.toString();
   }
 
-  async find(
-    user: string,
-    onlyDataExtern: boolean = false,
-    id_ext?: string
-  ): Promise<Record<string, any>> {
-    let extraKeys: Record<string, any> = {
+  async find(user: string, idExt?: string): Promise<User> {
+    // console.log(idExt);
+    const projection: Record<string, unknown> = {
       account_settings: 1,
       phone_number: 1,
       email: 1,
-      password: 1,
       date_born: 1,
+      "avatar.url": 1,
+      password: 1,
+      user_preferences: 1,
+      fullname: 1,
+      username: 1,
+      bio: 1,
+      verified: 1,
+      countPosts: 1,
+      countFriends: 1,
+      friends: { $elemMatch: { user: idExt } },
+      requests: { $elemMatch: { user: idExt } },
+      my_requests_sent: { $elemMatch: { user: idExt } },
     };
-    if (onlyDataExtern) {
-      extraKeys = {
-        friends: { $elemMatch: { user: id_ext } },
-        requests: { $elemMatch: { user: id_ext } },
-        my_requests_sent: { $elemMatch: { user: id_ext } },
-      };
-    }
-    const user_found = await this.userModel.findOne(
+
+    const resDb = await this.userModel.findOne(
       {
         $and: [
           {
             $or: [
               { username: user },
               { email: user },
-              { _id: Types.ObjectId.isValid(user) ? user : null },
+              {
+                _id: Types.ObjectId.isValid(user) ? user : null,
+              },
             ],
           },
           {
@@ -72,71 +82,91 @@ export default class MongoUserRepository {
           },
         ],
       },
-      {
-        "avatar.url": 1,
-        user_preferences: 1,
-        fullname: 1,
-        username: 1,
-        bio: 1,
-        verified: 1,
-        countPosts: { $size: "$posts" },
-        countFriends: { $size: "$friends" },
-        ...extraKeys,
-      }
+      projection,
     );
-    if (!user_found) throw new UserNotExist(user);
-    return user_found;
+    // console.log(resDb);
+    if (!resDb) throw new UserNotExist(user);
+
+    const userDb: User = new User(
+      resDb._id.toString(),
+      resDb.username as string,
+      resDb.email as string,
+      resDb.password as string,
+      resDb.bio as string,
+      resDb.avatar as Avatar,
+      resDb.verified as boolean,
+      resDb.fullname as string,
+      resDb.date_born as Date,
+      resDb.phone_number as string,
+      resDb.countPosts as number,
+      resDb.countFriends as number,
+      resDb.user_preferences as UserPreferences,
+      resDb.account_settings as AccountSettings,
+      resDb.friends[0]
+        ? { id_relation: resDb.friends[0]._id.toString() }
+        : null,
+      resDb.requests[0]
+        ? { id_request: resDb.requests[0]._id.toString() }
+        : null,
+      resDb.my_requests_sent[0]
+        ? { id_request: resDb.my_requests_sent[0]._id.toString() }
+        : null,
+    );
+
+    return userDb;
   }
 
-  async updateData(id_user: string, data: any): Promise<void> {
-    let data_: Record<string, any> = {};
+  async updateData(
+    idUser: string,
+    data: Record<string, unknown>,
+  ): Promise<void> {
+    const data_: Record<string, unknown> = {};
     for (const k in data) {
       data_[`${k}`] = data[k];
     }
     const user = await this.userModel
-      .findOneAndUpdate({ _id: id_user, doc_deleted: false }, { ...data_ })
+      .findOneAndUpdate({ _id: idUser, doc_deleted: false }, { ...data_ })
       .select("_id");
     if (!user) {
-      throw new UserNotExist(id_user);
+      throw new UserNotExist(idUser);
     }
   }
 
-  async updateAvatar(
-    id_user: string,
-    data: Record<string, string>
-  ): Promise<void> {
-    const resp_db = await this.userModel.updateOne(
-      { _id: id_user },
-      { avatar: data }
-    );
-    if (resp_db.modifiedCount === 0) {
-      throw new UserNotExist(id_user);
+  async updateAvatar(idUser: string, avatar: Avatar): Promise<void> {
+    const resDb = await this.userModel.updateOne({ _id: idUser }, { avatar });
+    if (resDb.modifiedCount === 0) {
+      throw new UserNotExist(idUser);
     }
   }
-  async updateSettings(id_user: string, data: any): Promise<void> {
-    let data_: Record<string, any> = {};
+
+  async updateSettings(
+    idUser: string,
+    data: Record<string, unknown>,
+  ): Promise<void> {
+    const data_: Record<string, unknown> = {};
     for (const k in data) {
       data_[`account_settings.${k}`] = data[k];
     }
     const user = await this.userModel
-      .findOneAndUpdate({ _id: id_user, doc_deleted: false }, { ...data_ })
+      .findOneAndUpdate({ _id: idUser, doc_deleted: false }, { ...data_ })
       .select("_id");
     if (!user) {
-      throw new UserNotExist(id_user);
+      throw new UserNotExist(idUser);
     }
   }
-  async delete(id_user: string): Promise<void> {
+
+  async delete(idUser: string): Promise<void> {
     const session = await this.connection.startSession();
     session.startTransaction();
 
     try {
       const user = await this.userModel.findOneAndUpdate(
-        { _id: id_user, doc_deleted: false },
+        { _id: idUser, doc_deleted: false },
         { doc_deleted: true },
-        { session }
+        { session },
       );
       if (!user) {
-        throw new UserNotExist(id_user);
+        throw new UserNotExist(idUser);
       }
       const posts_ = user.posts.map((p) => {
         return { _id: p };
@@ -145,7 +175,7 @@ export default class MongoUserRepository {
       await this.postModel.updateMany(
         { $or: posts_ },
         { doc_deleted: true },
-        { session }
+        { session },
       );
       await session.commitTransaction();
     } catch (e) {
@@ -155,65 +185,81 @@ export default class MongoUserRepository {
       await session.endSession();
     }
   }
+
   async sendFriendRequest(
-    id_user1: string,
-    id_user2: string
-  ): Promise<Record<string, any>> {
+    idUser1: string,
+    idUser2: string,
+  ): Promise<Record<string, unknown>> {
     const session = await this.connection.startSession();
 
     try {
       session.startTransaction();
       const user1 = await this.userModel
-        .findOne({ _id: id_user1, doc_deleted: false })
+        .findOne({ _id: idUser1, doc_deleted: false })
         .select("friends requests my_requests_sent");
 
       const user2 = await this.userModel
-        .findOne({ _id: id_user2, doc_deleted: false })
+        .findOne({ _id: idUser2, doc_deleted: false })
         .select(
-          "friends requests my_requests_sent  user_preferences.receive_requests"
+          "friends requests my_requests_sent  user_preferences.receive_requests",
         );
 
       if (!user1 || !user2) {
-        throw new UserNotExist(!user1 ? id_user1 : id_user2);
+        throw new UserNotExist(!user1 ? idUser1 : idUser2);
       }
 
-      const res: Record<string, any> = {};
-      const f = user1.friends.find((f) => f.user.toString() === id_user2);
+      const res: Record<string, unknown> = {};
 
-      if (f) {
-        res["id_relation"] = f._id;
+      const alreadyFriend = user1.friends.find(
+        (f) => f.user.toString() === idUser2,
+      );
+
+      if (alreadyFriend) {
+        res.id_relation = alreadyFriend._id;
         return res;
       }
 
-      //verifico si existe una solicitud del usuario2 en mis solicitudes
-      if (user1.requests.some((r) => r.user.toString() === id_user2)) {
+      // verifico si existe una solicitud del usuario2 en mis solicitudes
+
+      if (user1.requests.some((r) => r.user.toString() === idUser2)) {
         user1.requests = user1.requests.filter(
-          (r) => r.user.toString() !== id_user2
+          (r) => r.user.toString() !== idUser2,
         );
         user2.my_requests_sent = user1.my_requests_sent.filter(
-          (r) => r.user.toString() !== id_user1
+          (r) => r.user.toString() !== idUser1,
         );
 
-        const id_relation = new Types.ObjectId();
-        res["id_relation"] = id_relation;
-        user1.friends.push({ _id: id_relation, user: id_user2 });
-        user2.friends.push({ _id: id_relation, user: id_user1 });
-      } else if (!user2?.requests.some((r) => r.user.toString() === id_user1)) {
-        //en caso contrario verifico que no exista una solicitud y la creo
-        if (!(user2.user_preferences as Record<string, any>).receive_requests) {
+        const idRelation = new Types.ObjectId();
+
+        res.id_relation = idRelation;
+
+        user1.friends.push({ _id: idRelation, user: idUser2 });
+        user2.friends.push({ _id: idRelation, user: idUser1 });
+      } else if (!user2?.requests.some((r) => r.user.toString() === idUser1)) {
+        // en caso contrario verifico que no exista una solicitud y la creo
+
+        if (
+          !(user2.user_preferences as Record<string, unknown>).receive_requests
+        ) {
           throw new Error(
-            "El usuario a enviar la solicitud no permite recibir solicitudes debido a su configuracion"
+            "El usuario a enviar la solicitud no permite recibir solicitudes debido a su configuracion",
           );
         }
-        const id_request = new Types.ObjectId();
-        res["id_request"] = id_request;
-        user2.requests.push({ _id: id_request, user: user1 });
-        user1.my_requests_sent.push({ _id: id_request, user: user2 });
+
+        const idRequest = new Types.ObjectId();
+        res.id_request = idRequest;
+        user2.requests.push({ _id: idRequest, user: user1 });
+        user1.my_requests_sent.push({
+          _id: idRequest,
+          user: user2,
+        });
       } else {
-        //en caso de que existe lansa una excepcion
+        // en caso de que existe lanza una excepcion
+
         throw new Error("Ya existe la solicitud");
       }
-      //guardo los cambios en ambos usuarios
+      // guardo los cambios en ambos usuarios
+
       await user1.save({ session });
       await user2.save({ session });
       await session.commitTransaction();
@@ -225,45 +271,60 @@ export default class MongoUserRepository {
       await session.endSession();
     }
   }
-  async deleteRequest(id_user: string, id_request: string): Promise<void> {
+
+  // TODO improve logic
+  async deleteRequest(idUser: string, idRequest: string): Promise<void> {
     const session = await this.connection.startSession();
     session.startTransaction();
-
     try {
       const user1 = await this.userModel
-        .findOne({ _id: id_user, doc_deleted: false })
+        .findOne(
+          { _id: idUser, doc_deleted: false },
+          { requests: 1, my_requests_sent: 1 },
+        )
         .select("requests my_requests_sent");
+
       if (!user1) {
-        throw new UserNotExist(id_user);
+        throw new UserNotExist(idUser);
       }
 
-      const r_r = user1.requests.find((rr) => rr._id.toString() === id_request);
-      const r_s = user1.my_requests_sent.find(
-        (rs) => rs._id.toString() === id_request
+      const requestUser1 = user1.requests.find(
+        (r) => r._id.toString() === idRequest,
+      );
+      const requestSentUser1 = user1.my_requests_sent.find(
+        (r) => r._id.toString() === idRequest,
       );
 
-      const q_u1: Record<string, any> = {};
-      const q_u2: Record<string, any> = {};
+      const queryUser1: Record<string, unknown> = {};
 
-      if (r_r) {
-        q_u1.$pullAll = { requests: [r_r] };
-        q_u2.$pullAll = {
-          my_requests_sent: [{ user: id_user, _id: r_r._id }],
+      const queryUser2: Record<string, unknown> = {};
+
+      if (requestUser1) {
+        queryUser1.$pullAll = { requests: [requestUser1] };
+        queryUser2.$pullAll = {
+          my_requests_sent: [{ user: idUser, _id: requestUser1._id }],
         };
-      } else if (r_s) {
-        q_u1.$pullAll = { my_requests_sent: [r_s] };
-        q_u2.$pullAll = { requests: [{ user: id_user, _id: r_s._id }] };
+      } else if (requestSentUser1) {
+        queryUser1.$pullAll = {
+          my_requests_sent: [requestSentUser1],
+        };
+        queryUser2.$pullAll = {
+          requests: [{ user: idUser, _id: requestSentUser1._id }],
+        };
       } else {
-        throw new RequestNotExist(id_request);
+        throw new RequestNotExist(idRequest);
       }
 
-      await this.userModel.updateOne({ _id: id_user }, q_u1, { session });
+      await this.userModel.updateOne({ _id: idUser }, queryUser1, {
+        session,
+      });
       await this.userModel.updateOne(
-        { $or: [{ _id: r_r?.user }, { _id: r_s?.user }] },
-        q_u2,
-        { session }
+        {
+          $or: [{ _id: requestUser1?.user }, { _id: requestSentUser1?.user }],
+        },
+        queryUser2,
+        { session },
       );
-
       await session.commitTransaction();
     } catch (e) {
       await session.abortTransaction();
@@ -272,31 +333,39 @@ export default class MongoUserRepository {
       await session.endSession();
     }
   }
-  async deleteFriend(id_user: string, id_relation: string): Promise<void> {
+
+  async deleteFriend(idUser: string, idRelation: string): Promise<void> {
     const session = await this.connection.startSession();
     session.startTransaction();
 
     try {
       const user1 = await this.userModel
         .findOne({
-          $and: [{ _id: id_user }, { doc_deleted: false }],
+          $and: [{ _id: idUser }, { doc_deleted: false }],
         })
         .select("friends");
 
       if (!user1) {
-        throw new UserNotExist(id_user);
+        throw new UserNotExist(idUser);
       }
-      const f = user1.friends.find((f) => f._id.toString() === id_relation);
+      const f = user1.friends.find(
+        (f) =>
+          f._id.toString() === idRelation || f.user.toString() === idRelation,
+      );
       if (!f) {
         throw new Error("No existe esta relacion");
       }
       user1.friends = user1.friends.filter(
-        (f) => f._id.toString() !== id_relation
+        (f) => f._id.toString() !== idRelation,
       );
       const user2 = await this.userModel
         .findOneAndUpdate(
           { _id: f.user, doc_deleted: false },
-          { $pullAll: { friends: [{ _id: f._id, user: id_user }] } }
+          {
+            $pullAll: {
+              friends: [{ _id: f._id, user: idUser }],
+            },
+          },
         )
         .select("friends");
 
@@ -316,29 +385,30 @@ export default class MongoUserRepository {
   }
 
   async getRelationFields(
-    id_user: string,
+    idUser: string,
     field: "friends" | "requests" | "my_requests_sent",
-    id_user_v: string,
-    page?: number
-  ): Promise<Record<string, any>> {
-    const projection: Record<any, any> = {};
-    projection[`${field}`] = { $slice: [-10 * (page ? page : 1), 10] };
+    idUserView: string,
+    page?: number,
+  ): Promise<unknown> {
+    const projection: Record<string, unknown> = {};
+
+    projection[`${field}`] = { $slice: [-10 * (page ?? 1), 10] };
 
     const user = await this.userModel
       .findOne(
         {
-          _id: id_user,
+          _id: idUser,
           doc_deleted: false,
         },
-        projection
+        projection,
       )
       .select(field);
 
     if (!user) {
-      throw new UserNotExist(id_user);
+      throw new UserNotExist(idUser);
     }
 
-    const result = this.userModel.find(
+    const result = await this.userModel.find(
       {
         _id: { $in: user[field].map((f) => f.user) },
       },
@@ -346,18 +416,32 @@ export default class MongoUserRepository {
         _id: 1,
         username: 1,
         "avatar.url": 1,
-        myfriend: { $in: [new Types.ObjectId(id_user_v), `$${field}.user`] },
-      }
+        myfriend: {
+          $in: [new Types.ObjectId(idUserView), `$friends.user`],
+        },
+        requestSent: {
+          $in: [new Types.ObjectId(idUserView), `$requests.user`],
+        },
+        requestReceived: {
+          $in: [new Types.ObjectId(idUserView), `$my_requests_sent.user`],
+        },
+      },
     );
 
     return result;
   }
 
-  async exist(
-    user: Record<string, string>
-  ): Promise<Record<string, any> | null> {
-    //*ok
-    const user_found = await this.userModel.findOne(
+  async exist(user: Record<string, string>): Promise<
+    | {
+        username: string;
+        id: string;
+        email: string;
+        account_settings: AccountSettings;
+      }
+    | undefined
+  > {
+    // *ok
+    const resDb = await this.userModel.findOne(
       {
         $and: [
           {
@@ -373,12 +457,19 @@ export default class MongoUserRepository {
         ],
       },
       {
-        _id: 1,
         email: 1,
         username: 1,
         account_settings: 1,
-      }
+      },
     );
-    return user_found;
+
+    if (resDb) {
+      return {
+        id: resDb._id.toString(),
+        email: resDb.email as string,
+        username: resDb.username as string,
+        account_settings: resDb.account_settings as AccountSettings,
+      };
+    }
   }
 }

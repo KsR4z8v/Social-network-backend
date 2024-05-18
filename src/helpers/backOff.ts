@@ -1,9 +1,8 @@
-export interface typeFunction {
-  (): Promise<any>;
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type typeFunction = () => Promise<any>;
 
-const sleep = async (time: number) => {
-  return new Promise((resolve, reject) => {
+const sleep = async (time: number): Promise<void> => {
+  await new Promise((resolve) => {
     setTimeout(() => {
       resolve("");
     }, time);
@@ -12,20 +11,20 @@ const sleep = async (time: number) => {
 
 /**
  *
- * @param totry function to try
+ * @param toTry function to try
  * @param increment
  * @param limit
  * @returns
  */
 const backOff = async (
-  totry: typeFunction,
+  toTry: typeFunction,
   increment: "1s" | "sec" | "exp",
-  limit: number = -1
-): Promise<any | string> => {
-  let delay: number = 0;
-  let iteration: number = 1;
+  limit = -1,
+): Promise<unknown | string> => {
+  let delay = 0;
+  let iteration = 1;
 
-  const calcDelay = () => {
+  const calcDelay = (): void => {
     if (increment === "1s") {
       delay = 1000;
     }
@@ -37,17 +36,18 @@ const backOff = async (
     }
   };
 
+  // eslint-disable-next-line no-unmodified-loop-condition
   while (iteration <= limit || limit === -1) {
     try {
-      return await totry();
+      return await toTry();
     } catch (e) {
-      console.log("Reintenta en...", delay, "ms", iteration, "ERROR", e);
+      console.log("trying in...", delay, "ms", iteration, "ERROR", e);
       await sleep(delay);
       calcDelay();
     }
     iteration += 1;
   }
-  return "limit exced";
+  return "limit exceed";
 };
 
 export default backOff;

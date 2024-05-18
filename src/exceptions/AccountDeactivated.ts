@@ -6,7 +6,7 @@ export default class AccountDeactivated extends ExceptionServer {
       "ACCOUNT_DEACTIVATED",
       104,
       "La cuenta se encuentra  desactivada",
-      403
+      403,
     );
   }
 }

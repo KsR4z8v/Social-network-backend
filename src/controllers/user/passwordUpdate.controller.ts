@@ -1,28 +1,31 @@
-import { Request, Response } from "express";
+/* eslint-disable @typescript-eslint/naming-convention */
+import { type Request, type Response } from "express";
 import { hashString } from "../../helpers/hashString";
 import bcrypt from "bcryptjs";
-import MongoUserRepository from "../../database/repositories/MongoUserRepository";
-import ErrorHandler from "../../helpers/ErrorHandler";
+import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
+import type ErrorHandler from "../../helpers/ErrorHandler";
 import PasswordIncorrect from "../../exceptions/PasswordIncorrect";
+import type User from "../../database/models/User";
 
 export default class PasswordUpdateController {
   constructor(
     readonly userRepository: MongoUserRepository,
-    readonly errorHandler: ErrorHandler
+    readonly errorHandler: ErrorHandler,
   ) {}
-  async run(req: Request, res: Response) {
+
+  async run(req: Request, res: Response): Promise<Response | undefined> {
     try {
       const { id_user } = req.params;
       const { old_password, new_password } = req.body;
 
-      const user_found = await this.userRepository.find(id_user);
+      const userFound: User = await this.userRepository.find(id_user);
 
-      if (!(await bcrypt.compare(old_password, user_found.password))) {
+      if (!(await bcrypt.compare(old_password as string, userFound.password))) {
         throw new PasswordIncorrect();
       }
-      const password_new_hash = await hashString(new_password);
+      const password_new_hash = await hashString(new_password as string);
 
-      if (await bcrypt.compare(old_password, password_new_hash)) {
+      if (await bcrypt.compare(old_password as string, password_new_hash)) {
         return res.status(411).json({
           message: "Las contraseñas son iguales",
         });
