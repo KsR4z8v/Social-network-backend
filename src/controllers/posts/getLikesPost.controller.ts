@@ -15,10 +15,11 @@ export default class GetLikesPostController {
       const { id_post } = req.params;
       const { page } = req.query;
       const { payload } = getDataToken(req);
+
       const likes = await this.postRepository.getLikes(
         id_post,
         parseInt(page as string) || 1,
-        payload.id_user as string,
+        payload.idUser as string,
       );
 
       return res.status(200).json({ state: "ok", data: { id_post, likes } });

@@ -9,7 +9,7 @@ import type ErrorHandler from "../../helpers/ErrorHandler";
 import PasswordIncorrect from "../../exceptions/PasswordIncorrect";
 import AccountDeactivated from "../../exceptions/AccountDeactivated";
 import ApiGoogleEmailService from "../../services/sendEmailGoogle.service";
-import type User from "../../database/models/User";
+import { compare } from "bcryptjs";
 
 dotenv.config();
 
@@ -24,23 +24,24 @@ export default class SignController {
   async run(req: Request, res: Response): Promise<Response | undefined> {
     const { user, password } = req.body;
     try {
-      const userFound: User = await this.userRepository.find(user as string);
+      const userFound = await this.userRepository.find(user as string);
 
-      if (!userFound.accountSettings.state_account) {
+      if (!userFound.account_settings.state_account) {
         throw new AccountDeactivated();
       }
-      const passValidation: boolean = await userFound.validatePassword(
+      const passValidation: boolean = await compare(
         password as string,
+        userFound.password,
       );
       if (!passValidation) {
         throw new PasswordIncorrect();
       }
-      if (!userFound.accountSettings.verified_email) {
+      if (!userFound.account_settings.verified_email) {
         const serviceRedis: VerifyCodeRedisService =
           VerifyCodeRedisService.getInstance();
         const verifyCode = codeGenerator(4);
         await serviceRedis.setVerificationCode(
-          userFound.id.toString(),
+          userFound._id.toString(),
           verifyCode,
         );
         void ApiGoogleEmailService.getInstance().sendVerificationCode(
@@ -51,13 +52,13 @@ export default class SignController {
         return res.status(200).json({
           state: "PENDING_TO_VERIFIED",
           data: {
-            id_user: userFound.id,
+            id_user: userFound._id,
             fullname: userFound.fullname,
           },
         });
       }
       const tkn = jwt.sign(
-        { sessionId: req.session.id, idUser: userFound.id },
+        { sessionId: req.session.id, idUser: userFound._id },
         process.env.KEY_SECRET_JWT ?? "secret",
         config.config_token,
       );
@@ -68,7 +69,7 @@ export default class SignController {
         state: "ok",
         data: {
           csrftoken: tkn,
-          id_user: userFound.id,
+          id_user: userFound._id,
           username: userFound.username,
           email: userFound.email,
         },

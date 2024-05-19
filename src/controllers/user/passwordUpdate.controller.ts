@@ -5,7 +5,6 @@ import bcrypt from "bcryptjs";
 import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
 import type ErrorHandler from "../../helpers/ErrorHandler";
 import PasswordIncorrect from "../../exceptions/PasswordIncorrect";
-import type User from "../../database/models/User";
 
 export default class PasswordUpdateController {
   constructor(
@@ -18,7 +17,7 @@ export default class PasswordUpdateController {
       const { id_user } = req.params;
       const { old_password, new_password } = req.body;
 
-      const userFound: User = await this.userRepository.find(id_user);
+      const userFound = await this.userRepository.find(id_user);
 
       if (!(await bcrypt.compare(old_password as string, userFound.password))) {
         throw new PasswordIncorrect();

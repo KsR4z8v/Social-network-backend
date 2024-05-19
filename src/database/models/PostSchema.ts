@@ -1,6 +1,9 @@
 import { Schema, Types } from "mongoose";
+import type PostInterface from "./PostInterface";
 
-const PostSchema = new Schema(
+export interface PostDocument extends PostInterface<Types.ObjectId>, Document {}
+
+const PostSchema = new Schema<PostDocument>(
   {
     author: { type: Types.ObjectId, ref: "User" },
     text: { type: String },

@@ -2,7 +2,6 @@ import { type Request, type Response } from "express";
 import getDataToken from "../../helpers/getDataToken";
 import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
 import type ErrorHandler from "../../helpers/ErrorHandler";
-import type User from "../../database/models/User";
 
 export default class GetInfoUserController {
   constructor(
@@ -16,10 +15,11 @@ export default class GetInfoUserController {
       const { payload } = getDataToken(req);
       const idUserToken: string = payload.idUser;
 
-      const userFound: User = await this.userRepository.find(user, idUserToken);
+      const userFound = await this.userRepository.find(user, idUserToken);
 
+      // format response
       const objectRes: Record<string, unknown> = {};
-      objectRes.id_user = userFound.id;
+      objectRes.id_user = userFound._id;
       objectRes.bio = userFound.bio;
       objectRes.username = userFound.username;
       objectRes.fullname = userFound.fullname;
@@ -28,21 +28,27 @@ export default class GetInfoUserController {
       objectRes.username = userFound.username;
       objectRes.verified = userFound.verified;
       objectRes.avatar = userFound.avatar;
+      objectRes.user_preferences = userFound.user_preferences;
 
-      objectRes.user_preferences = userFound.userPreferences;
-
-      if (userFound.id === idUserToken) {
-        objectRes.phoneNumber = userFound.phoneNumber;
-        objectRes.dateBorn = userFound.dateBorn;
+      if (userFound._id.toString() === idUserToken) {
+        objectRes.phoneNumber = userFound.phone_number;
+        objectRes.dateBorn = userFound.date_born;
         objectRes.email = userFound.email;
-        objectRes.user_preferences = userFound.userPreferences;
-        objectRes.account_settings = userFound.accountSettings;
+        objectRes.user_preferences = userFound.user_preferences;
+        objectRes.account_settings = userFound.account_settings;
       } else {
-        objectRes.myFriend = userFound.myFriend;
-        objectRes.requestSent = userFound.requestSent;
-        objectRes.requestReceived = userFound.requestReceived;
+        objectRes.friend = userFound.friends[0]
+          ? { id_relation: userFound.friends[0]._id }
+          : undefined;
+        objectRes.requestSent = userFound.requests[0]
+          ? { id_request: userFound.requests[0]._id }
+          : undefined;
+        objectRes.requestReceived = userFound.my_requests_sent[0]
+          ? {
+              id_request: userFound.my_requests_sent[0]._id,
+            }
+          : undefined;
       }
-
       return res.status(200).json({ state: "ok", data: { user: objectRes } });
     } catch (e) {
       this.errorHandler.run(req, res, e);

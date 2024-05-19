@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import type User from "../../database/models/User";
 import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
 import type ErrorHandler from "../../helpers/ErrorHandler";
 import { hashString } from "../../helpers/hashString";
@@ -16,11 +15,11 @@ export default class RestorePasswordController {
       const { password } = req.body;
       const { id_user } = req.params;
 
-      const userFound: User = await this.userRepository.find(id_user);
+      const userFound = await this.userRepository.find(id_user);
 
       const passwordHash: string = await hashString(password as string);
 
-      await this.userRepository.updateData(userFound.id, {
+      await this.userRepository.updateData(userFound._id.toString(), {
         password: passwordHash,
       });
       return res.sendStatus(204);

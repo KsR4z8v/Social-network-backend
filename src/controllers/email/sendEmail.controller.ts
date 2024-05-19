@@ -20,7 +20,7 @@ export default class SendEmailController {
 
       const userFound = await this.userRepository.find(user as string);
 
-      if (!userFound.accountSettings.state_account) {
+      if (!userFound.account_settings.state_account) {
         throw new AccountDeactivated();
       }
       const userFullname = userFound.fullname.split(" ")[0];
@@ -28,7 +28,10 @@ export default class SendEmailController {
       if (type === "verifyAccount") {
         const serviceRedis = VerifyCodeRedisService.getInstance();
         const verifyCode = codeGenerator(4);
-        void serviceRedis.setVerificationCode(userFound.id, verifyCode);
+        void serviceRedis.setVerificationCode(
+          userFound._id.toString(),
+          verifyCode,
+        );
 
         void ApiGoogleEmailService.getInstance().sendVerificationCode(
           userFound.email,
@@ -38,7 +41,7 @@ export default class SendEmailController {
       }
       if (type === "recoveryPassword") {
         const token = jwt.sign(
-          { id_user: userFound.id },
+          { id_user: userFound._id },
           process.env.KEY_SECRET_JWT ?? "secret",
           { expiresIn: "5m" },
         );
