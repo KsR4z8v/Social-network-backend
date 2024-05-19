@@ -28,7 +28,7 @@ export default class CreatePostController {
 
       const userFound = await this.userRepository.find(id_user);
 
-      if (!userFound.accountSettings.state_account) {
+      if (!userFound.account_settings.state_account) {
         throw new AccountDeactivated();
       }
 

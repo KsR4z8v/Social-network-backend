@@ -5,7 +5,6 @@ import type ErrorHandler from "../../helpers/ErrorHandler";
 import getDataToken from "../../helpers/getDataToken";
 import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
 import IncorrectDataRequest from "../../exceptions/IncorrectDataRequest";
-import type User from "../../database/models/User";
 
 dotenv.config();
 
@@ -35,8 +34,11 @@ export default class GetPostsController {
 
       if (user) {
         // verifico datos del usuario
-        const userFound: User = await this.userRepository.find(user as string);
-        if (payload.idUser !== user && !userFound.userPreferences.profileView) {
+        const userFound = await this.userRepository.find(user as string);
+        if (
+          payload.idUser !== user &&
+          !userFound.user_preferences.profileView
+        ) {
           return res.status(200).json({
             state: "ok",
             data: { posts: [] },

@@ -17,7 +17,10 @@ export default class GetFriendsController {
       const idUserTk: string = payload.idUser;
 
       const userFound = await this.userRepository.find(user);
-      if (userFound.id !== idUserTk && !userFound.userPreferences.profileView) {
+      if (
+        userFound._id.toString() !== idUserTk &&
+        !userFound.user_preferences.profileView
+      ) {
         return res.status(200).json({
           state: "ok",
           data: { friends: [] },
@@ -26,10 +29,10 @@ export default class GetFriendsController {
       }
 
       const friendsFound = await this.userRepository.getRelationFields(
-        userFound.id,
+        userFound._id.toString(),
         "friends",
         idUserTk,
-        parseInt(page as string),
+        parseInt(page as string) || 1,
       );
 
       return res

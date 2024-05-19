@@ -5,11 +5,14 @@ const ConnectionMongo = (): Connection => {
   const connection: Connection = createConnection(uri, {
     maxPoolSize: 100,
     minPoolSize: 20,
-    maxConnecting: 50,
   });
 
   connection.on("connected", () => {
     console.log("Connection established");
+  });
+
+  connection.on("acquire", () => {
+    console.log("xd");
   });
 
   connection.on("disconnected", () => {

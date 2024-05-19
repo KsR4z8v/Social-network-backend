@@ -1,6 +1,9 @@
 import { Schema, Types } from "mongoose";
+import type UserInterface from "./UserInterface";
 
-export default new Schema(
+export interface UserDocument extends UserInterface<Types.ObjectId>, Document {}
+
+export default new Schema<UserDocument>(
   {
     bio: { type: String, default: null },
     username: { type: String, required: true },

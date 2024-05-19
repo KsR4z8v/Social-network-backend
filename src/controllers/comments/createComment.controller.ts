@@ -4,7 +4,6 @@ import type MongoPostRepository from "../../database/repositories/MongoPostRepos
 import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
 import type ErrorHandler from "../../helpers/ErrorHandler";
 import AccountDeactivated from "../../exceptions/AccountDeactivated";
-import type User from "../../database/models/User";
 
 export default class CreateCommentController {
   constructor(
@@ -19,9 +18,9 @@ export default class CreateCommentController {
 
       const { text } = req.body;
 
-      const userFound: User = await this.userRepository.find(id_user);
+      const userFound = await this.userRepository.find(id_user);
 
-      if (!userFound.accountSettings.state_account) {
+      if (!userFound.account_settings.state_account) {
         throw new AccountDeactivated();
       }
       // TODO verificar permisos del usuario

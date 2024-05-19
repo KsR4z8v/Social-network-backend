@@ -7,7 +7,6 @@ import type MongoUserRepository from "../../database/repositories/MongoUserRepos
 import type ErrorHandler from "../../helpers/ErrorHandler";
 import VerificationCodeExpired from "../../exceptions/VerificationCodeExpired";
 import VerificationCodeIncorrect from "../../exceptions/VerificationCodeIncorrect";
-import type User from "../../database/models/User";
 
 export default class ConfirmEmailController {
   constructor(
@@ -19,11 +18,11 @@ export default class ConfirmEmailController {
     try {
       const { id_user } = req.params;
       const { entered_code } = req.body;
-      const userFound: User = await this.userRepository.find(id_user);
+      const userFound = await this.userRepository.find(id_user);
 
       const redisService = VerifyCodeRedisService.getInstance();
       const verificationCode = await redisService.getVerificationCode(
-        userFound.id,
+        userFound._id.toString(),
       );
 
       if (!verificationCode) {
@@ -38,7 +37,7 @@ export default class ConfirmEmailController {
       });
 
       const tkn = jwt.sign(
-        { sessionId: req.session.id, id_user: userFound.id },
+        { sessionId: req.session.id, id_user: userFound._id },
         process.env.KEY_SECRET_JWT ?? "secret",
         config.config_token,
       );

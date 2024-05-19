@@ -2,7 +2,6 @@ import { type Request, type Response } from "express";
 import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
 import type ErrorHandler from "../../helpers/ErrorHandler";
 import getDataToken from "../../helpers/getDataToken";
-import type User from "../../database/models/User";
 
 export default class GetRequestsController {
   constructor(
@@ -18,9 +17,9 @@ export default class GetRequestsController {
 
       const idUserTk: string = payload.idUser;
 
-      const userFound: User = await this.userRepository.find(user);
+      const userFound = await this.userRepository.find(user);
 
-      if (userFound.id !== idUserTk) {
+      if (userFound._id.toString() !== idUserTk) {
         return res.status(200).json({
           state: "ok",
           data: { friends: [] },
@@ -35,7 +34,7 @@ export default class GetRequestsController {
       const requestsFound = await this.userRepository.getRelationFields(
         user,
         fields[type],
-        userFound.id,
+        userFound._id.toString(),
         parseInt(page as string),
       );
 

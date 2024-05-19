@@ -1,4 +1,4 @@
 export default interface UserPreferences {
-  profileView: string;
-  receive_requests: string;
+  profileView: boolean;
+  receive_requests: boolean;
 }

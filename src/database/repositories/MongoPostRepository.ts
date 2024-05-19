@@ -1,21 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Types, type Connection } from "mongoose";
-import PostSchema from "../schemasMongo/PostSchema";
-import UserSchema from "../schemasMongo/UserSchema";
+import { type Model, Types, type Connection } from "mongoose";
 import UserNotExist from "../../exceptions/UserNotExist";
 import PostNotExist from "../../exceptions/PostNotExist";
 import CommentsDeactivated from "../../exceptions/CommentsDeactivated";
+import type UserInterface from "../models/UserInterface";
+import { type PostDocument } from "../models/PostSchema";
+import { type UserDocument } from "../models/UserSchema";
+import type PostInterface from "../models/PostInterface";
 
 export default class MongoPostRepository {
-  private readonly connection: Connection;
-  private readonly postModel;
-  private readonly userModel;
-
-  constructor(connection: Connection) {
-    this.connection = connection;
-    this.postModel = connection.model("Post", PostSchema, "Post");
-    this.userModel = connection.model("User", UserSchema, "User");
-  }
+  constructor(
+    readonly connection: Connection,
+    readonly postModel: Model<PostDocument>,
+    readonly userModel: Model<UserDocument>,
+  ) {}
 
   // *ok
   async find(idPost: string): Promise<Record<string, any>> {
@@ -65,7 +63,7 @@ export default class MongoPostRepository {
     { author }: Record<string, any>,
     idUser: string,
     cursor?: Date,
-  ): Promise<Array<Record<string, any>>> {
+  ): Promise<Array<PostInterface<Types.ObjectId>>> {
     const queryDb: Record<string, any> = {
       "config.private": false,
       "config.archived": false,
@@ -99,7 +97,10 @@ export default class MongoPostRepository {
   }
 
   // *ok es bellisimaaaaa
-  async getBySearchIndex(query: string, idUser: string): Promise<any> {
+  async getBySearchIndex(
+    query: string,
+    idUser: string,
+  ): Promise<Array<PostInterface<Types.ObjectId>>> {
     const projection = {
       countComments: { $size: "$comments" },
       countLikes: 1,
@@ -224,7 +225,7 @@ export default class MongoPostRepository {
     if (!post) {
       throw new PostNotExist(idPost);
     }
-    const l = post.likes.find((l) => l.user?.toString() === idUser);
+    const l = post.likes.find((l: any) => l.user?.toString() === idUser);
 
     if (l) {
       await this.postModel.updateOne(
@@ -287,7 +288,7 @@ export default class MongoPostRepository {
   }
 
   // *ok
-  async getComments(idPost: string, page = 1): Promise<any[]> {
+  async getComments(idPost: string, page = 1): Promise<any> {
     const post = await this.postModel
       .findOne(
         {
@@ -318,9 +319,9 @@ export default class MongoPostRepository {
   // *ok
   async getLikes(
     idPost: string,
-    page = 1,
+    page: number = 1,
     idUserExt?: string,
-  ): Promise<Array<Record<string, any>>> {
+  ): Promise<Array<UserInterface<Types.ObjectId>>> {
     const post = await this.postModel
       .findOne(
         {
@@ -342,7 +343,7 @@ export default class MongoPostRepository {
     }
     const query = {
       _id: {
-        $in: post.likes.map((l) => l.user),
+        $in: post.likes.map((l: any) => l.user),
       },
     };
     // busco los usuarios que le dieron like a esa publicacion
@@ -351,8 +352,14 @@ export default class MongoPostRepository {
       username: 1,
       verified: 1,
       "avatar.url": 1,
-      myfriend: {
-        $in: [new Types.ObjectId(idUserExt), "$friends.user"],
+      friends: {
+        $elemMatch: { user: idUserExt },
+      },
+      my_requests_sent: {
+        $elemMatch: { user: idUserExt },
+      },
+      requests: {
+        $elemMatch: { user: idUserExt },
       },
     });
 
