@@ -1,10 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/naming-convention */
 import dotenv from "dotenv";
-import {
-  type UploadMediaResponse,
-  uploadMedia,
-} from "../../services/imageKit.service";
+import { uploadMediaV2 } from "../../services/imageKit.service";
 import { type Request, type Response } from "express";
 import type MongoPostRepository from "../../database/repositories/MongoPostRepository";
 import type MongoUserRepository from "../../database/repositories/MongoUserRepository";
@@ -32,10 +30,10 @@ export default class CreatePostController {
         throw new AccountDeactivated();
       }
 
-      const mediaSaved: UploadMediaResponse = media
-        ? await uploadMedia(
+      const mediaSaved = media
+        ? await uploadMediaV2(
             media as any[],
-            process.env.MEDIA_FOLDER_DEST ?? " ",
+            process.env.MEDIA_FOLDER_DEST_TEST ?? " ",
           )
         : []; // insert images on image kit
 
