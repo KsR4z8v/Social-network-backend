@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import ImageKit from "imagekit";
 import FailureToLoadMedia from "../exceptions/FailureToLoadMedia";
 import backOff from "../helpers/backOff";
@@ -11,7 +12,6 @@ export type UploadMediaResponse = Array<{
 }>;
 
 export const uploadMedia = async (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   files: any[],
   path: string,
 ): Promise<UploadMediaResponse> => {
@@ -33,6 +33,27 @@ export const uploadMedia = async (
     }
   }
   return imagesUpload;
+};
+
+export const uploadMediaV2 = async (
+  files: any[],
+  path: string,
+): Promise<any> => {
+  try {
+    const promises = [];
+    for (const file of files) {
+      promises.push(
+        imagekit.upload({
+          file: file.buffer,
+          fileName: file.originalname,
+          folder: path + (file.mimetype === "video/mp4" ? "videos" : "images"),
+        }),
+      );
+    }
+    return await Promise.all(promises);
+  } catch (error) {
+    throw new FailureToLoadMedia();
+  }
 };
 
 export const deleteMedia = async (idImages: string[]): Promise<void> => {

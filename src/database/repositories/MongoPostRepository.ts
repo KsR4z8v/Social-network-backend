@@ -184,11 +184,15 @@ export default class MongoPostRepository {
   ): Promise<string> {
     const session = await this.connection.startSession();
     session.startTransaction();
+    const mediaMap = media.map((m) => {
+      return { url: m.url, id_kit: m.fileId };
+    });
+
     try {
       const post = new this.postModel({
         author: idAuthor,
         text,
-        media,
+        media: mediaMap,
       });
       const resDb = await post.save({ session });
       const resDb2 = await this.userModel.updateOne(
