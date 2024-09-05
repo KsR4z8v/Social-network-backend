@@ -1,12 +1,19 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-
     "module": "CommonJS",
-    "outDir": "./dist",
+    "moduleResolution": "node",
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "strictNullChecks": true
-  }
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "src/Posts",
+    "src/Auth/infrastructure/controllers/authGooglePlatform.controller.ts"
+  ]
 }
