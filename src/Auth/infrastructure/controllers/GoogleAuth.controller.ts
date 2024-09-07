@@ -1,26 +1,21 @@
 import { type Request, type Response } from "express";
-import type UserAuthenticatorCase from "../../application/UserAuthenticatorCase";
 import type ErrorHandler from "../../../Default/helpers/ErrorHandler";
-import type SendVerifiedEmailCase from "../../../Default/application/SendVerifiedEmailCase";
+import type GoogleAuthenticatorCase from "../../application/GoogleAuthenticatorCase";
 import { CONFIG_COOKIE_TOKEN } from "../../../Default/configs/config";
 
-export default class AuthController {
+export default class GoogleAuthController {
   constructor(
-    readonly userAuthenticatorCase: UserAuthenticatorCase,
-    readonly sendVerifiedEmailCase: SendVerifiedEmailCase,
+    readonly googleAuthenticatorCase: GoogleAuthenticatorCase,
     readonly errorHandler: ErrorHandler,
   ) {}
 
   async run(req: Request, res: Response): Promise<Response | undefined> {
     try {
-      const { user, password } = req.body;
+      const { credential, clientId } = req.body;
 
-      const { userId, username, email, pendingToVerified, token } =
-        await this.userAuthenticatorCase.run(String(user), String(password));
+      const { userId, username, token, pendingToVerified } =
+        await this.googleAuthenticatorCase.run(clientId, credential);
 
-      if (pendingToVerified) {
-        await this.sendVerifiedEmailCase.run(userId, username, email);
-      }
       if (token) {
         req.session.user = {
           userId,

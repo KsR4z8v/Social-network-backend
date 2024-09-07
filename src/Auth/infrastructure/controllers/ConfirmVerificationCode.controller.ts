@@ -21,7 +21,7 @@ export default class ConfirmVerificationCodeController {
       );
       req.session.user = {
         authToken: token,
-        userId: userId,
+        userId,
         role: "user",
         restoreToken: null,
         username: "",

@@ -7,17 +7,18 @@ import TokenGoogleInvalid from "../domain/exceptions/TokenGoogleInvalid.exceptio
 
 const validateCredentialsGoogle = async (
   token: string,
+  clientId: string,
 ): Promise<TokenPayload> => {
   try {
-    const client: OAuth2Client = new OAuth2Client(process.env.ID_CLIENT);
+    const client: OAuth2Client = new OAuth2Client(clientId);
     const ticket: LoginTicket = await client.verifyIdToken({
       idToken: token,
-      audience: process.env.ID_CLIENT,
+      audience: clientId,
     });
     const data: TokenPayload | undefined = ticket.getPayload();
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+
     if (!data) {
-      throw new Error("Not tokenPayload");
+      throw new Error();
     }
     return data;
   } catch (err) {
