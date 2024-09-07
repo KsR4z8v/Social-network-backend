@@ -1,6 +1,6 @@
 export default interface Like<T> {
   id: T;
-  toObject: T;
+  to: T;
   user: {
     id: string;
     username: string;
