@@ -11,9 +11,5 @@
     "rootDir": "./src"
   },
   "include": ["src/**/*"],
-  "exclude": [
-    "node_modules",
-    "src/Posts",
-    "src/Auth/infrastructure/controllers/authGooglePlatform.controller.ts"
-  ]
+  "exclude": ["node_modules"]
 }
