@@ -17,7 +17,7 @@ export default class ConfirmVerificationCodeController {
 
       const token = await this.confirmVerificationCode.run(
         userId,
-        String(code ?? ""),
+        String(code),
       );
       req.session.user = {
         authToken: token,
