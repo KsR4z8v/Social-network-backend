@@ -44,8 +44,6 @@ export default class MongoUserRepository implements UserRepository {
         emailVerified: false,
         deleted: false,
       },
-      posts: [],
-      archivedPosts: [],
       savedPosts: [],
       friends: [],
       requestsSent: [],

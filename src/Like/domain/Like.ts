@@ -1,10 +1,12 @@
 export default interface Like<T> {
   id: T;
-  to: T;
   user: {
     id: string;
     username: string;
-    urlAvatar: string;
+    avatar: string;
+    relationExternalId: string | null;
+    requestSentExternalId: string | null;
+    requestReceivedExternalId: string | null;
   };
   createdAt: Date;
 }

@@ -7,5 +7,7 @@ export default interface PostRepository {
     userId: string,
     criteria: Map<string, unknown>,
   ) => Promise<Array<Post<string>>>;
+  delete: (userId: string, postId: string) => Promise<void>;
+  find: (postId: string) => Promise<Post<string>>;
   //searchByIndex: (query: string) => Promise<Array<Post<string>>>;
 }

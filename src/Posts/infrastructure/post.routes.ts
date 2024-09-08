@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from "express";
 import { middlewareCreatePost } from "../../Posts/infrastructure/middlewares/postControllers.middlewares";
+import verifySession from "../../Auth/infrastructure/middlewares/verifySession.middleware";
+
 import {
   createPostController,
   obtainPostController,
+  deletePostController,
 } from "./controllers/index";
-
-import verifySession from "../../Auth/infrastructure/middlewares/verifySession.middleware";
 import multer from "multer";
 
 const upload = multer();
 const postRoutes = Router();
 
-// controllers.createPostController
 postRoutes.post(
   "/",
   verifySession,
@@ -25,6 +25,12 @@ postRoutes.get(
   "/",
   verifySession,
   obtainPostController.run.bind(obtainPostController),
+);
+
+postRoutes.delete(
+  "/:postId",
+  verifySession,
+  deletePostController.run.bind(deletePostController),
 );
 
 export default postRoutes;

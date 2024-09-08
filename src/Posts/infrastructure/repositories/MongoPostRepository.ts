@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import UserNotExist from "../../../Default/domain/exceptions/UserNotExist";
 import PostNotExist from "../../../Default/domain/exceptions/PostNotExist";
 import { type Collection, type MongoClient, ObjectId } from "mongodb";
 import Post from "../../domain/Post";
 import PostCreate from "../../domain/PostCreate";
 import PostRepository from "../../domain/PostRepository";
-import { auth } from "google-auth-library";
 
 export default class MongoPostRepository implements PostRepository {
   private readonly postCollection: Collection;
@@ -29,10 +27,12 @@ export default class MongoPostRepository implements PostRepository {
     return respDb.insertedId.toString();
   }
 
-  async find(postId: string): Promise<any> {
+  async find(postId: string): Promise<Post<string>> {
     const respDb = await this.postCollection.findOne(
       {
         _id: new ObjectId(postId),
+        visibility: true,
+        archived: false,
         deleted: false,
       },
       {
@@ -45,12 +45,29 @@ export default class MongoPostRepository implements PostRepository {
     if (!respDb) {
       throw new PostNotExist(postId);
     }
-    return respDb;
+    return new Post(
+      respDb._id.toString(),
+      "",
+      "",
+      "",
+      false,
+      true,
+      "",
+      0,
+      0,
+      [],
+      new Date(),
+      false,
+    );
   }
 
-  async delete(postId: string): Promise<void> {
+  async delete(userId: string, postId: string): Promise<void> {
     const respDb = await this.postCollection.updateOne(
-      { _id: new ObjectId(postId), deleted: false },
+      {
+        _id: new ObjectId(postId),
+        author: new ObjectId(userId),
+        deleted: false,
+      },
       { $set: { deleted: true } },
     );
     if (respDb.matchedCount === 0) {
@@ -77,6 +94,8 @@ export default class MongoPostRepository implements PostRepository {
         {
           $match: {
             deleted: false,
+            visibility: true,
+            archived: false,
             ...query,
           },
         },
@@ -106,7 +125,8 @@ export default class MongoPostRepository implements PostRepository {
         {
           $project: {
             _id: 1,
-            likes: 1,
+            "likes.user": 1,
+            "likes.deleted": 1,
             authorId: "$author._id",
             authorUrlAvatar: "$author.profile.avatar.url",
             authorUsername: "$author.account.username",
@@ -122,7 +142,7 @@ export default class MongoPostRepository implements PostRepository {
       ])
       .limit(15)
       .toArray();
-    // console.log(respDb);
+
     return respDb.map((p): Post<string> => {
       return {
         id: p._id.toString(),
@@ -136,7 +156,9 @@ export default class MongoPostRepository implements PostRepository {
         media: p.media,
         comments: p.comments,
         text: p.text,
-        liked: false,
+        liked: p.likes.some(
+          (l: any) => l.user.toString() === userId && l.deleted === false,
+        ),
       };
     });
   }
@@ -171,19 +193,19 @@ export default class MongoPostRepository implements PostRepository {
               },
               {
                 equals: {
-                  path: "doc_deleted",
+                  path: "deleted",
                   value: false,
                 },
               },
               {
                 equals: {
-                  path: "config.archived",
+                  path: "archived",
                   value: false,
                 },
               },
               {
                 equals: {
-                  path: "config.private",
+                  path: "visibility",
                   value: false,
                 },
               },
@@ -200,7 +222,7 @@ export default class MongoPostRepository implements PostRepository {
         },
       },
       {
-        $limit: 20,
+        $limit: 15,
       },
       {
         $lookup: {

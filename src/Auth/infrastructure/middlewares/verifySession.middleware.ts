@@ -57,10 +57,10 @@ const verifySession = (
         username: "",
       };
     }
-    console.log({
+    /*   console.log({
       bearerToken,
       cookieToken,
-    });
+    }); */
     next();
   } catch (e) {
     errorHandler.run(req, res, e);

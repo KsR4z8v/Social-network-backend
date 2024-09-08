@@ -8,7 +8,7 @@ export default class ObtainPostCase {
     userId: string,
     criteria: Map<string, unknown>,
   ): Promise<Post<string>[]> {
-    const posts = await this.postRepository.get("", criteria);
+    const posts = await this.postRepository.get(userId, criteria);
     return posts;
   }
 }

@@ -1,7 +1,6 @@
 import type ErrorHandler from "../../../Default/helpers/ErrorHandler";
 import { type Request, type Response } from "express";
 import ObtainPostCase from "../../application/ObtainPostCase";
-import { ObjectId } from "mongodb";
 
 export default class ObtainPostController {
   constructor(
@@ -11,7 +10,7 @@ export default class ObtainPostController {
 
   async run(req: Request, res: Response): Promise<any> {
     try {
-      const userId: string = "";
+      const userId: string = req.session.user!.userId;
 
       const criteria = new Map<string, unknown>([]);
 

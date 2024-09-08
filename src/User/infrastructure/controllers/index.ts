@@ -21,7 +21,7 @@ import { sendVerifiedEmailCase } from "../../../Auth/infrastructure/controllers"
 const errorHandler: ErrorHandler = new ErrorHandler();
 
 // USER CASES
-const createUserCase: CreateUserCase = new CreateUserCase(
+export const createUserCase: CreateUserCase = new CreateUserCase(
   userRepository,
   sendVerifiedEmailCase,
 );

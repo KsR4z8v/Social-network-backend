@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { likeController } from "./controllers";
+import { likeController, obtainLikesController } from "./controllers";
 import verifySession from "../../Auth/infrastructure/middlewares/verifySession.middleware";
 import { rateLimit } from "express-rate-limit";
 
@@ -16,6 +16,12 @@ likeRoutes.post(
   limiter,
   verifySession,
   likeController.run.bind(likeController),
+);
+
+likeRoutes.get(
+  "/:from",
+  verifySession,
+  obtainLikesController.run.bind(obtainLikesController),
 );
 
 export default likeRoutes;
