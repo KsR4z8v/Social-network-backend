@@ -11,7 +11,7 @@ import {
 } from "./Default/configs/config";
 import cors from "cors";
 import dotenv from "dotenv";
-dotenv.config({ path: ".develop.env" });
+dotenv.config({ path: ".env.development.local" });
 
 declare module "express-session" {
   interface SessionData {

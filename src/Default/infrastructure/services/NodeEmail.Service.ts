@@ -1,13 +1,14 @@
 import EmailService from "../../domain/EmailService";
 import { createTransport, Transporter } from "nodemailer";
+
 export default class NodeEmailService implements EmailService {
   private readonly CONFIGS = {
     host: "smtp.gmail.com",
     port: 587,
     secure: false,
     auth: {
-      user: "snapwireinfo@gmail.com",
-      pass: "memp mtpm kcvs wrxy",
+      user: process.env.APP_EMAIL,
+      pass: process.env.APP_PASSWORD_EMAIL,
     },
   };
   private transporter: Transporter;

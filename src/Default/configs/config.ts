@@ -3,7 +3,7 @@ import { CookieOptions } from "express";
 import { SessionOptions } from "express-session";
 import { type ImageKitOptions } from "imagekit/dist/libs/interfaces";
 import { SignOptions } from "jsonwebtoken";
-dotenv.config({ path: ".develop.env" });
+dotenv.config({ path: ".env.development.local" });
 
 export const IMAGE_KIT_CONFIG: ImageKitOptions = {
   publicKey: process.env.PUBLIC_KEY_IMAGEKIT ?? "",
